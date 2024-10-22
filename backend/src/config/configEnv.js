@@ -1,7 +1,8 @@
 "use strict";
 // Import the 'path' module to get the absolute path of the .env file
 import path from "node:path";
-const __dirname = import.meta.dirname;
+import { fileURLToPath } from "node:url";
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /** Get the absolute path of the .env file. */
 const envFilePath = path.resolve(__dirname, ".env");
