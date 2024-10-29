@@ -1,0 +1,1 @@
+const ESTADO = ["Bueno", "mal estado", "en repacion"];

@@ -2,6 +2,7 @@
 
 import Joi from "joi";
 import ROLES from "../constants/roles.constants.js";
+import INSTRUMENTOS from "../constants/instrumentos.constants.js";
 /**
  * Esquema de validación para el cuerpo de la solicitud de usuario.
  * @constant {Object}
@@ -21,6 +22,17 @@ const userBodySchema = Joi.object({
     "string.max": "El rut debe tener al menos 10 caracteres.",
     "string.pattern.base": "El rut tiene el formato XXXXXXXX-X, ejemplo: 12345678-9.",
   }),
+  fecha_nacimiento: Joi.date().required().messages({
+    "date.base": "La fecha de nacimiento debe ser de tipo date.",
+    "any.required": "La fecha de nacimiento es obligatoria.",
+  }),
+  telefono: Joi.string().required().min(9).max(9).messages({
+    "string.empty": "El teléfono no puede estar vacío.",
+    "any.required": "El teléfono es obligatorio.",
+    "string.base": "El teléfono debe ser de tipo string.",
+    "string.min": "El teléfono debe tener al menos 9 caracteres.",
+    "string.max": "El teléfono debe tener al menos 9 caracteres.",
+  }),
   password: Joi.string().required().min(5).messages({
     "string.empty": "La contraseña no puede estar vacía.",
     "any.required": "La contraseña es obligatoria.",
@@ -32,6 +44,12 @@ const userBodySchema = Joi.object({
     "any.required": "El email es obligatorio.",
     "string.base": "El email debe ser de tipo string.",
     "string.email": "El email debe tener un formato válido.",
+  }),
+  instrumento: Joi.string().valid(...INSTRUMENTOS).required().messages({
+    "string.empty": "El instrumento no puede estar vacío.",
+    "any.required": "El instrumento es obligatorio.",
+    "string.base": "El instrumento debe ser de tipo string.",
+    "any.only": "El instrumento proporcionado no es válido.",
   }),
   roles: Joi.array()
     .items(Joi.string().valid(...ROLES))

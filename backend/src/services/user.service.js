@@ -41,8 +41,11 @@ async function createUser(user) {
     const newUser = new User({
       username,
       rut,
+      fecha_nacimiento,
+      telefono,
       email,
       password: await User.encryptPassword(password),
+      instrumento,
       roles: myRole,
     });
     await newUser.save();
@@ -106,7 +109,10 @@ async function updateUser(id, user) {
         username,
         email,
         rut,
+        fecha_nacimiento,
+        telefono,
         password: await User.encryptPassword(newPassword || password),
+        instrumento,
         roles: myRole,
       },
       { new: true },
