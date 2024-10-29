@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 // crea el esquema de la coleccion 'actividades'
 const actividadesSchema = new mongoose.Schema(
   {
-    nombre: {
+    titulo: {
       type: String,
       required: true,
     },
