@@ -1,1 +1,2 @@
-const ESTADO = ["Buen estado", "mal estado", "en repacion"];
+const ESTADO = ["buen estado", "utilizable", "mal estado", "en reparacion"];
+export default ESTADO;

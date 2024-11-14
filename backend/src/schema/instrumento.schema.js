@@ -1,9 +1,9 @@
 "use strict";
 
 import Joi from "joi";
-import MARCA from "../constants/marca.constants";
-import ESTADO from "../constants/estado.constants";
-import IMPLEMENTO from "../constants/implemento.constants";
+import MARCA from "../constants/marca.constants.js";
+import ESTADO from "../constants/estado.constants.js";
+import IMPLEMENTOS from "../constants/implementos.constants.js";
 
 const instrumentoBodySchema = Joi.object({
     nombre: Joi.string().required().messages({
@@ -21,7 +21,7 @@ const instrumentoBodySchema = Joi.object({
         "any.required": "El estado es obligatorio.",
         "string.base": "El estado debe ser de tipo string.",
     }),
-    implemento: Joi.string().valid(...IMPLEMENTO).required().messages({
+    implemento: Joi.string().valid(...IMPLEMENTOS).optional().messages({
         "string.empty": "El implemento no puede estar vacío.",
         "any.required": "El implemento es obligatorio.",
         "string.base": "El implemento debe ser de tipo string.",

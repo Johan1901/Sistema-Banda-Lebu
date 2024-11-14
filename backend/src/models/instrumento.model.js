@@ -1,9 +1,9 @@
 "use strict";
 
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 import MARCA from "../constants/marca.constants.js";
 import ESTADO from "../constants/estado.constants.js";
-import IMPLEMENTO from "../constants/implemento.constants.js";
+import IMPLEMENTOS from "../constants/implementos.constants.js";
 
 const instrumentoSchema = new mongoose.Schema({
     nombre: {
@@ -22,10 +22,10 @@ const instrumentoSchema = new mongoose.Schema({
     },
     implemento: {
         type: String,
-        enum: IMPLEMENTO,
-        required: true,
+        enum: IMPLEMENTOS,
+
     },
 });
 
 const Instrumento = mongoose.model("Instrumento", instrumentoSchema);
-module.exports = Instrumento;
+export default Instrumento;

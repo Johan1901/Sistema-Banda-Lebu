@@ -10,7 +10,7 @@ const implementoSchema = new mongoose.Schema({
     },
     instrumento: {
         type: String,
-        required: true,
+        required: flase,
     },
     stock: {
         type: Number,

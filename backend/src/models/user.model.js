@@ -2,7 +2,7 @@
 // Import the 'mongoose' module to create the database connection
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import INSTRUMENTOS from "../constants/instrumentos.constants";
+import INSTRUMENTOS from "../constants/instrumentos.constants.js";
 
 // Create the 'users' collection schema
 const userSchema = new mongoose.Schema(
@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema(
     instrumento: {
       type: String,
       enum: INSTRUMENTOS,
-      required: true,
+      required: false,
     },
     roles: [
       {
