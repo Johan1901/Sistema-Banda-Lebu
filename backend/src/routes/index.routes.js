@@ -14,6 +14,9 @@ import authenticationMiddleware from "../middlewares/authentication.middleware.j
 // importa rutas de instrumento
 import instrumentoRoutes from "./instrumento.routes.js";
 
+// importa rutas de implemento
+import implementoRoutes from "./implemento.routes.js";
+
 /** Instancia del enrutador */
 const router = Router();
 
@@ -25,5 +28,7 @@ router.use("/auth", authRoutes);
 // Define las rutas para los instrumentos /api/instrumentos
 router.use("/instrumentos", authenticationMiddleware, instrumentoRoutes);
 
+// define las rutas para los implementos /api/implementos
+router.use("/implementos", authenticationMiddleware, implementoRoutes);
 // Exporta el enrutador
 export default router;

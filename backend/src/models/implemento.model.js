@@ -1,16 +1,17 @@
 "use strict";
 
-const mongoose = require("mongoose");
-
+import mongoose from "mongoose";
+import IMPLEMENTOS from "../constants/implementos.constants.js";
 
 const implementoSchema = new mongoose.Schema({
     nombre: {
         type: String,
+        enum: IMPLEMENTOS,
         required: true,
     },
     instrumento: {
         type: String,
-        required: flase,
+        required: false,
     },
     stock: {
         type: Number,
@@ -19,4 +20,4 @@ const implementoSchema = new mongoose.Schema({
 });
 
 const Implemento = mongoose.model("Implemento", implementoSchema);
-module.exports = Implemento;
+export default Implemento;

@@ -75,7 +75,7 @@ async function deleteImplemento (id) {
     }
 }
 
-export {
+export default{
     createImplemento,
     getImplementos,
     getImplemento,

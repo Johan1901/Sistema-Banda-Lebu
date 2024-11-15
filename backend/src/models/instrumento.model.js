@@ -4,10 +4,11 @@ import mongoose from "mongoose";
 import MARCA from "../constants/marca.constants.js";
 import ESTADO from "../constants/estado.constants.js";
 import IMPLEMENTOS from "../constants/implementos.constants.js";
-
+import INSTRUMENTOS from "../constants/instrumentos.constants.js";
 const instrumentoSchema = new mongoose.Schema({
     nombre: {
         type: String,
+        enum: INSTRUMENTOS,
         required: true,
     },
     marca: {
@@ -23,7 +24,7 @@ const instrumentoSchema = new mongoose.Schema({
     implemento: {
         type: String,
         enum: IMPLEMENTOS,
-
+        required: false,
     },
 });
 

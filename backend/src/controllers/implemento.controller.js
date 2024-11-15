@@ -1,78 +1,136 @@
 "use strict";
 
-import Implemento from "../models/implemento.model.js";
+//import Implemento from "../models/implemento.model.js";
 import { handleError } from "../utils/errorHandler.js";
+import { implementoBodySchema, implementoIdSchema } from "../schema/implemento.schema.js";
+import { respondSuccess, respondError } from "../utils/resHandler.js";
+import ImplementoService from "../services/implemento.service.js";
 
-async function createImplemento (implemento) {
+/**
+ * crea un nuevo implemento
+ * @param {Object} req - Objeto de petición
+ * @param {Object} res - Objeto de respuesta
+ */
+
+async function createImplemento (req, res) {
     try {
-        const { nombre, instrumento, stock } = implemento;
+        const { body } = req;
+        const {error: bodyError} = implementoBodySchema.validate(body);
+        if (bodyError) return respondError(req, res, 400, bodyError.message);
+        
+        const [newImplemento, implementoError] = await ImplementoService.createImplemento(body);
 
-        const newImplemento = new Implemento({
-            nombre,
-            instrumento,
-            stock,
-        });
-        await newImplemento.save();
+        if (implementoError) return respondError(req, res, 400, implementoError);
+        if (!newImplemento) {
+            return respondError(req, res, 400, "No se creó el implemento");
+        }
 
-        return [newImplemento, null];
+        respondSuccess(req, res, 201, newImplemento);
     }
     catch (error) {
         handleError(error, "implemento.service -> createImplemento");
+        respondError(req, res, 500, "No se creó el implemento");
     }
 }
 
-async function getImplementos () {
-    try {
-        const implementos = await Implemento.find().exec();
-        if (!implementos) return [null, "No hay implementos"];
+/**
+ * Obtiene todos los implementos
+ * @param {Object} req - Objeto de petición
+ * @param {Object} res - Objeto de respuesta
+ */
 
-        return [implementos, null];
+async function getImplementos (req, res) {
+    try {
+        const [implementos, errorImplementos] = await ImplementoService.getImplementos();
+        if (errorImplementos) return respondError(req, res, 404, errorImplementos);
+
+        implementos.length === 0
+        ? respondSuccess(req, res, 204)
+        : respondSuccess(req, res, 200, implementos);
     }
     catch (error) {
-        handleError(error, "implemento.service -> getImplementos");
+        handleError(error, "implemento.controller -> getImplementos");
+        respondError(req, res, 400, error.message);
     }
+
 }
 
-async function getImplemento (id) {
-    try {
-        const implemento = await Implemento.findById(id).exec();
-        if (!implemento) return [null, "No se encontró el implemento"];
 
-        return [implemento, null];
+/**
+ * Obtiene un implemento por su id
+ * @param {Object} req - Objeto de petición
+ * @param {Object} res - Objeto de respuesta
+ */
+
+async function getImplemento (req, res) {
+    try {
+        const { id } = req.params;
+        const { error: idError } = implementoIdSchema.validate({ id });
+        if (idError) return respondError(req, res, 400, idError.message);
+
+        const [implemento, errorImplemento] = await ImplementoService.getImplemento(id);
+        if (errorImplemento) return respondError(req, res, 404, errorImplemento);
+
+        respondSuccess(req, res, 200, implemento);
     }
     catch (error) {
-        handleError(error, "implemento.service -> getImplemento");
+        handleError(error, "implemento.controller -> getImplemento");
+        respondError(req, res, 400, error.message);
     }
+
 }
 
-async function updateImplemento (id, implemento) {
+/**
+ * Actualiza un implemento
+ * @param {Object} req - Objeto de petición
+ * @param {Object} res - Objeto de respuesta
+ */
+
+async function updateImplemento (req, res) {
     try {
-        const { nombre, instrumento, stock } = implemento;
+        const { id } = req.params;
+        const { body } = req;
+        const { error: idError } = implementoIdSchema.validate({ id });
+        if (idError) return respondError(req, res, 400, idError.message);
 
-        const updatedImplemento = await Implemento.findByIdAndUpdate(id, {
-            nombre,
-            instrumento,
-            stock,
-        }, { new: true });
-        if (!updatedImplemento) return [null, "No se encontró el implemento"];
+        const { error: bodyError } = implementoBodySchema.validate(body);
+        if (bodyError) return respondError(req, res, 400, bodyError.message);
 
-        return [updatedImplemento, null];
+        const [updatedImplemento, errorImplemento] = await ImplementoService.updateImplemento(id, body);
+        if (errorImplemento) return respondError(req, res, 404, errorImplemento);
+
+        respondSuccess(req, res, 200, updatedImplemento);
     }
     catch (error) {
-        handleError(error, "implemento.service -> updateImplemento");
+        handleError(error, "implemento.controller -> updateImplemento");
+        respondError(req, res, 400, error.message);
     }
+
 }
 
-async function deleteImplemento (id) {
-    try {
-        const implemento = await Implemento.findByIdAndDelete(id).exec();
-        if (!implemento) return [null, "No se encontró el implemento"];
+/**
+ * Elimina un implemento
+ * @param {Object} req - Objeto de petición
+ * @param {Object} res - Objeto de respuesta
+ */
 
-        return [implemento, null];
+async function deleteImplemento (req, res) {
+    try {
+        const { id } = req.params;
+        const { error: idError } = implementoIdSchema.validate({ id });
+        if (idError) return respondError(req, res, 400, idError.message);
+
+        const [deletedImplemento, errorImplemento] = await ImplementoService.deleteImplemento(id);
+        if (errorImplemento) return respondError(req, res, 404, errorImplemento);
+
+        respondSuccess(req, res, 200, deletedImplemento);
     }
     catch (error) {
-        handleError(error, "implemento.service -> deleteImplemento");
+        handleError(error, "implemento.controller -> deleteImplemento");
+        respondError(req, res, 400, error.message);
     }
+
 }
 
-export { createImplemento, getImplementos, getImplemento, updateImplemento, deleteImplemento };
+
+export default { createImplemento, getImplementos, getImplemento, updateImplemento, deleteImplemento };

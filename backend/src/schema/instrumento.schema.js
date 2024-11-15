@@ -4,9 +4,10 @@ import Joi from "joi";
 import MARCA from "../constants/marca.constants.js";
 import ESTADO from "../constants/estado.constants.js";
 import IMPLEMENTOS from "../constants/implementos.constants.js";
+import INSTRUMENTOS from "../constants/instrumentos.constants.js";
 
 const instrumentoBodySchema = Joi.object({
-    nombre: Joi.string().required().messages({
+    nombre: Joi.string().valid(...INSTRUMENTOS).required().messages({
         "string.empty": "El nombre no puede estar vacío.",
         "any.required": "El nombre es obligatorio.",
         "string.base": "El nombre debe ser de tipo string.",
