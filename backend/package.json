@@ -13,7 +13,6 @@
     "backend",
     "http"
   ],
-  "author": "Camilo saez",
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "2.4.3",
