@@ -17,6 +17,9 @@ import instrumentoRoutes from "./instrumento.routes.js";
 // importa rutas de implemento
 import implementoRoutes from "./implemento.routes.js";
 
+// importa rutas de actividades
+import actividadesRoutes from "./actividades.routes.js";
+
 /** Instancia del enrutador */
 const router = Router();
 
@@ -30,5 +33,8 @@ router.use("/instrumentos", authenticationMiddleware, instrumentoRoutes);
 
 // define las rutas para los implementos /api/implementos
 router.use("/implementos", authenticationMiddleware, implementoRoutes);
+
+// define las rutas para las actividades /api/actividades
+router.use("/actividades", authenticationMiddleware, actividadesRoutes);
 // Exporta el enrutador
 export default router;
