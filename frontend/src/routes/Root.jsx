@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../services/auth.service';
 import { AuthProvider, useAuth } from '../context/AuthContext';
+import RootUsuario from './RootUsuario';
 
 function Root() {
   return (
@@ -20,6 +21,7 @@ function PageRoot() {
   };
 
   const { user } = useAuth();
+  const isAdmin = user.roles.some(role => role.name === 'admin');
 
   return (
     <div>
