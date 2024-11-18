@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { logout } from "../services/auth.service";
 import { useState, useEffect } from "react";
-import { set } from "react-hook-form";
 
 const RootUser = () => {
     const navigate = useNavigate();
@@ -28,3 +27,5 @@ const RootUser = () => {
         </div>
     );
 }
+
+export default RootUser;
