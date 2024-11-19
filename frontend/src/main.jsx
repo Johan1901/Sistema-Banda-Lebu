@@ -7,6 +7,7 @@ import Root from './routes/Root.jsx';
 import ErrorPage from './routes/ErrorPage.jsx';
 import Login from './routes/Login.jsx';
 import CrearInstrumento from './components/CrearInstrumento.jsx';
+import VerInstrumentos from './components/VerInstrumentos.jsx';
 
 
 const router = createBrowserRouter([
@@ -23,6 +24,11 @@ const router = createBrowserRouter([
       {
         path: '/inventario/crear/instrumento',
         element: <CrearInstrumento />,
+      },
+      //nueva ruta para VerInstrumentos
+      {
+        path: '/inventario/ver/instrumentos',
+        element: <VerInstrumentos />,
       },
     ],
   },

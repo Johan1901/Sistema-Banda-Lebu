@@ -54,10 +54,9 @@ export const getInstrumento = async (id) => {
         Authorization: `Bearer ${token}`
       }
     });
-    return response;
+    return response.data;
   } catch (error) {
-    console.error("Error al obtener instrumento:", error);
-    throw new Error(error);
+    throw error.response.data;
   }
 };
 
@@ -94,10 +93,9 @@ export const deleteInstrumento = async (id) => {
       }
     });
     
-    return response;
+    return response.data;
   } catch (error) {
-    console.error("Error al eliminar instrumento:", error);
-    throw new Error(error);
+    throw error.response.data;
   }
 };
 
