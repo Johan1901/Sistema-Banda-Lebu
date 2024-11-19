@@ -34,11 +34,11 @@ function LoginForm() {
               id="email"
               type="email"
               {...register('email', { required: 'Email is required' })}
-              className={`w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-500 ${
                 errors.email ? 'border-red-500' : ''
-              }`}
+              } bg-gray-50 text-black`} // Asegura que el texto sea negro
               placeholder="@email.com"
-            />
+              />
             {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>}
           </div>
 
@@ -51,11 +51,11 @@ function LoginForm() {
               id="password"
               type="password"
               {...register('password', { required: 'Password is required' })}
-              className={`w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
                 errors.password ? 'border-red-500' : ''
-              }`}
+              } bg-gray-50 text-black`} // Asegura que el texto sea negro
               placeholder="Contraseña"
-            />
+              />
             {errors.password && (
               <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>
             )}

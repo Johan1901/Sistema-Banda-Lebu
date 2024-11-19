@@ -26,7 +26,7 @@ const userBodySchema = Joi.object({
     "date.base": "La fecha de nacimiento debe ser de tipo date.",
     "any.required": "La fecha de nacimiento es obligatoria.",
   }),
-  telefono: Joi.string().required().min(9).max(9).messages({
+  telefono: Joi.string().required().min(8).max(8).messages({
     "string.empty": "El teléfono no puede estar vacío.",
     "any.required": "El teléfono es obligatorio.",
     "string.base": "El teléfono debe ser de tipo string.",

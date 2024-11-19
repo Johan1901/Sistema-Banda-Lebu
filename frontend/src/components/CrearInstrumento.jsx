@@ -97,7 +97,7 @@ const CrearInstrumento = () => {
         </div>
         <div>
             <label htmlFor="implemento" className="block text-sm font-medium text-gray-600">
-                Implemento (opcional)
+                Implemento
             </label>
             <select
                 id="implemento"
@@ -107,7 +107,7 @@ const CrearInstrumento = () => {
                 className="w-full border border-gray-300 rounded-md py-2 px-3 bg-gray-100 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
                 <option value="">Selecciona un implemento</option>
-                {["atril", "baquetas", "correa de bombo", "correa de redoble", "maceta", "ninguno"].map((implemento) => (
+                {["-", "atril", "baquetas", "correa de bombo", "correa de redoble", "maceta"].map((implemento) => (
                     <option key={implemento} value={implemento}>
                         {implemento.charAt(0).toUpperCase() + implemento.slice(1)}
                     </option>
