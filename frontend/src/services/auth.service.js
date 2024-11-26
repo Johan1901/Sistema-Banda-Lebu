@@ -2,8 +2,8 @@ import axios from './root.service';
 import cookies from 'js-cookie';
 import jwtDecode from 'jwt-decode';
 
-//const API_URL = `${import.meta.env.VITE_BASE_URL}/api/auth/login`;
-const API_URL = 'http://localhost:3000/api/auth/login';
+const API_URL = `${import.meta.env.VITE_BASE_URL}/api/auth/login`;
+//const API_URL = 'http://localhost:3000/api/auth/login';
 export const login = async ({ email, password }) => {
   try {
     const response = await axios.post( API_URL , {
