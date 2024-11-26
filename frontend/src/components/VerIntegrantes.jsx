@@ -113,7 +113,7 @@ const VerIntegrantes = () => {
                   </button>
                   <button
                     onClick={() => navigate(`/integrantes/editar/${integrante._id}`)}
-                    className="bg-yellow-500 text-white py-1 px-3 rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    className="bg-blue-500 text-white py-1 px-3 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   >
                     Editar
                   </button>
