@@ -32,9 +32,7 @@ const actividadesBodySchema = Joi.object({
         "any.required": "El participante es obligatorio.",
         "string.base": "El participante debe ser de tipo string.",
     }),
-}).messages({
-    "object.unknown": "No se permiten propiedades adicionales.",
-});
+}).unknown(true);
 
 const actividadesIdSchema = Joi.object({
     id: Joi.string()

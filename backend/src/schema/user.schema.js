@@ -26,12 +26,12 @@ const userBodySchema = Joi.object({
     "date.base": "La fecha de nacimiento debe ser de tipo date.",
     "any.required": "La fecha de nacimiento es obligatoria.",
   }),
-  telefono: Joi.string().required().min(8).max(8).messages({
+  telefono: Joi.string().required().min(8).max(12).messages({
     "string.empty": "El teléfono no puede estar vacío.",
     "any.required": "El teléfono es obligatorio.",
     "string.base": "El teléfono debe ser de tipo string.",
-    "string.min": "El teléfono debe tener al menos 9 caracteres.",
-    "string.max": "El teléfono debe tener al menos 9 caracteres.",
+    "string.min": "El teléfono debe tener al menos 8 caracteres.",
+    "string.max": "El teléfono debe tener al menos 12 caracteres.",
   }),
   password: Joi.string().required().min(5).messages({
     "string.empty": "La contraseña no puede estar vacía.",

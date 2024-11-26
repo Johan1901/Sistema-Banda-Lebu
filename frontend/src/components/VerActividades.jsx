@@ -1,70 +1,92 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { deleteActividad, getActividades, updateActividad } from "../services/actividades.service.js";
+import {
+  deleteActividad,
+  getActividades,
+  updateActividad,
+} from "../services/actividades.service.js";
 import { showSuccessAlert, showErrorAlert } from "./Alertmsg.jsx";
 
 const VerActividades = () => {
   const [actividades, setActividades] = useState([]);
   const [error, setError] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedActividad, setSelectedActividad] = useState(null);
   const navigate = useNavigate();
 
-  // Fetch data when the component is mounted
   useEffect(() => {
     fetchActividades();
   }, []);
 
-  // Fetch activities data from the server
   const fetchActividades = async () => {
     try {
       const response = await getActividades();
-
-      // Validación de la estructura de los datos
       if (
         response.data &&
         (Array.isArray(response.data.data) || Array.isArray(response.data))
       ) {
         const data = response.data.data || response.data;
         setActividades(data);
-        console.log("Actividades obtenidas:", data);
       } else {
         setError("Formato inesperado en la respuesta del servidor.");
-        console.error("Respuesta inesperada:", response);
       }
     } catch (error) {
-      console.error("Error al obtener actividades:", error);
       setError("No se pudo cargar la lista de actividades.");
     }
   };
 
-  // Handle activity deletion
   const handleDelete = async (id) => {
     if (!id) {
-      console.error("ID no válido para eliminar la actividad.");
       showErrorAlert("ID no válido para eliminar la actividad.");
       return;
     }
-
     try {
-      console.log("Eliminando actividad con ID:", id); // Depuración para ver el id
       await deleteActividad(id);
-      console.log("Actividad eliminada:", id);
       setActividades((prevActividades) =>
         prevActividades.filter((actividad) => actividad._id !== id)
       );
       showSuccessAlert("Actividad eliminada correctamente");
     } catch (error) {
-      console.error("Error al eliminar actividad:", error);
       showErrorAlert("Error al eliminar actividad.");
     }
   };
 
-  // Function to format the date in dd/mm/yyyy
+  const handleEdit = (actividad) => {
+    setSelectedActividad(actividad);
+    setModalVisible(true);
+  };
+
+  const handleModalClose = () => {
+    setModalVisible(false);
+    setSelectedActividad(null);
+  };
+
+  const handleUpdate = async (event) => {
+    event.preventDefault();
+    try {
+      await updateActividad(selectedActividad._id, selectedActividad);
+      fetchActividades();
+      showSuccessAlert("Actividad actualizada correctamente");
+      handleModalClose();
+    } catch (error) {
+      showErrorAlert("Error al actualizar la actividad.");
+    }
+  };
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+
+    // Para la fecha, mantén el valor como una cadena en formato YYYY-MM-DD
+    setSelectedActividad((prev) => ({
+      ...prev,
+      [name]: name === "fecha" ? value : value,
+    }));
+  };
+
   const formatDate = (dateString) => {
+    if (!dateString) return "";
     const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+    return date.toISOString().split("T")[0]; // Devuelve en formato YYYY-MM-DD
   };
 
   return (
@@ -89,22 +111,22 @@ const VerActividades = () => {
               <h3 className="text-2xl font-semibold text-blue-600 mb-2">
                 {actividad.titulo}
               </h3>
-              <p className="text-gray-800 text-sm mb-4">{actividad.descripcion}</p>
+              <p className="text-gray-800 text-sm mb-4">
+                {actividad.descripcion}
+              </p>
               <div className="mb-2">
-                <strong className="text-gray-800">Fecha:</strong> 
-                <span className="text-gray-800">{formatDate(actividad.fecha)}</span>
+                <strong className="text-gray-800">Fecha:</strong>{" "}
+                <span className="text-gray-800">
+                  {formatDate(actividad.fecha)}
+                </span>
               </div>
               <div className="mb-2">
-                <strong className="text-gray-800">Hora:</strong> 
-                <span className="text-gray-800"> {actividad.hora}</span>
+                <strong className="text-gray-800">Hora:</strong>{" "}
+                <span className="text-gray-800">{actividad.hora}</span>
               </div>
               <div className="mb-2">
-                <strong className="text-gray-800">Lugar:</strong> 
-                <span className="text-gray-800"> {actividad.lugar}</span>
-              </div>
-              <div className="mb-4">
-                <strong className="text-gray-800">Participantes:</strong>{" "}
-                {actividad.participantes.join(", ")}
+                <strong className="text-gray-800">Lugar:</strong>{" "}
+                <span className="text-gray-800">{actividad.lugar}</span>
               </div>
               <div className="flex justify-between gap-2">
                 <button
@@ -114,7 +136,7 @@ const VerActividades = () => {
                   Eliminar
                 </button>
                 <button
-                  onClick={() => navigate(`/actividades/editar/${actividad._id}`)}
+                  onClick={() => handleEdit(actividad)}
                   className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded"
                 >
                   Editar
@@ -129,6 +151,87 @@ const VerActividades = () => {
           )}
         </div>
       </div>
+
+      {/* Modal */}
+      {modalVisible && (
+        <div className="fixed inset-0 bg-white bg-opacity-90 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 className="text-2xl font-bold mb-4 text-black">
+              Editar Actividad
+            </h2>
+            <form onSubmit={handleUpdate}>
+              <div className="mb-4">
+                <label className="block text-black">Título</label>
+                <input
+                  type="text"
+                  name="titulo"
+                  value={selectedActividad.titulo}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border rounded bg-white text-black"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-black">Descripción</label>
+                <textarea
+                  name="descripcion"
+                  value={selectedActividad.descripcion}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border rounded bg-white text-black"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-black">Fecha</label>
+                <input
+                  type="date"
+                  name="fecha"
+                  value={
+                    selectedActividad.fecha
+                      ? formatDate(selectedActividad.fecha)
+                      : ""
+                  }
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border rounded bg-white text-black"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-black">Hora</label>
+                <input
+                  type="time"
+                  name="hora"
+                  value={selectedActividad.hora}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border rounded bg-white text-black"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-black">Lugar</label>
+                <input
+                  type="text"
+                  name="lugar"
+                  value={selectedActividad.lugar}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border rounded bg-white text-black"
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={handleModalClose}
+                  className="bg-gray-500 text-white px-4 py-2 rounded"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                >
+                  Guardar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

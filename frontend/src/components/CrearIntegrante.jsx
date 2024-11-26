@@ -11,6 +11,7 @@ const CrearIntegrante = () => {
         password: "",
         email: "",
         instrumento: "",
+        roles: "",  // Agregar campo roles
     });
 
     const handleChange = (e) => {
@@ -34,12 +35,24 @@ const CrearIntegrante = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
         try {
-            await createIntegrante({
+            if (!integrante.roles) {
+                showErrorAlert("Por favor, seleccione un roles.");
+                return;
+            }
+    
+            const dataToSend = {
                 ...integrante,
                 telefono: `+569${integrante.telefono}`,
-            });
+                roles: [integrante.roles], // Aseguramos que roles sea un array
+            };
+    
+            console.log("Datos a enviar:", dataToSend);  // Agregado para depuración
+    
+            await createIntegrante(dataToSend);
             showSuccessAlert("Integrante creado correctamente");
+    
             // Limpiar los campos del formulario
             setIntegrante({
                 username: "",
@@ -49,11 +62,14 @@ const CrearIntegrante = () => {
                 password: "",
                 email: "",
                 instrumento: "",
+                roles: "", // Limpiar el campo roles
             });
         } catch (error) {
             showErrorAlert("Error al crear integrante");
+            console.error("Error al crear integrante:", error); // Para depuración
         }
     };
+    
 
     return (
         <div className="container mx-auto">
@@ -158,6 +174,26 @@ const CrearIntegrante = () => {
                         {["trompeta", "trombon", "baritono", "tuba", "redoble", "platillos", "lira", "clarinete", "saxofon", "bombo"].map((instrumento) => (
                             <option key={instrumento} value={instrumento}>
                                 {instrumento.charAt(0).toUpperCase() + instrumento.slice(1)}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                {/* Campo roles */}
+                <div>
+                    <label htmlFor="roles" className="block text-sm font-medium text-gray-600">
+                        Roles
+                    </label>
+                    <select
+                        id="roles"
+                        name="roles"
+                        value={integrante.roles}
+                        onChange={handleChange}
+                        className="w-full border border-gray-300 rounded-md py-2 px-3 bg-gray-100 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="">Selecciona un roles</option>
+                        {["user", "admin"].map((roles) => (
+                            <option key={roles} value={roles}>
+                                {roles.charAt(0).toUpperCase() + roles.slice(1)}
                             </option>
                         ))}
                     </select>

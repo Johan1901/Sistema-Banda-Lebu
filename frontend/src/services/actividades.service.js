@@ -72,9 +72,10 @@ export const updateActividad = async (id, actividad) => {
             Authorization: `Bearer ${token}`
         }
         });
-        return response.data;
+        return response;
     } catch (error) {
-        throw error.response.data;
+        console.error("Error al actualizar actividad:", error);
+        throw new Error(error);
     }
 };
 

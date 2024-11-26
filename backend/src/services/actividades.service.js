@@ -48,11 +48,11 @@ async function getActividad(id){
     }
 }
 
-async function updateActividades(_id, actividades){
+async function updateActividades(id, actividades){
     try {
         const { titulo, descripcion, fecha, hora, lugar, participantes } = actividades;
 
-        const updatedActividades = await Actividades.findByIdAndUpdate(_id, {
+        const updatedActividades = await Actividades.findByIdAndUpdate(id, {
             titulo,
             descripcion,
             fecha,
