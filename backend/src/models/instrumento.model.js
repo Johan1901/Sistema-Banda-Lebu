@@ -24,7 +24,7 @@ const instrumentoSchema = new mongoose.Schema({
     implemento: {
         type: String,
         enum: IMPLEMENTOS,
-        required: false,
+        required: true,
     },
 });
 

@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API_URL = `${import.meta.env.VITE_BASE_URL}/api/users`;
-//const API_URL = `http://localhost:3000/api/users`;
+//const API_URL = `${import.meta.env.VITE_BASE_URL}/api/users`;
+const API_URL = `http://localhost:3000/api/users`;
 
 const getToken = () => sessionStorage.getItem("token");
 

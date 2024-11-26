@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { deleteActividad, getActividades } from "../services/actividades.service.js";
+import { deleteActividad, getActividades, updateActividad } from "../services/actividades.service.js";
 import { showSuccessAlert, showErrorAlert } from "./Alertmsg.jsx";
 
 const VerActividades = () => {

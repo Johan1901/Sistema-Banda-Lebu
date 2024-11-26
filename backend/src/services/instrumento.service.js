@@ -47,11 +47,11 @@ async function getInstrumento (id) {
     }
 }
 
-async function updateInstrumento (_id, instrumento) {
+async function updateInstrumento (id, instrumento) {
     try {
         const { nombre, marca, estado, implemento} = instrumento;
 
-        const updatedInstrumento = await Instrumento.findByIdAndUpdate(_id, {
+        const updatedInstrumento = await Instrumento.findByIdAndUpdate(id, {
             nombre,
             marca,
             estado,

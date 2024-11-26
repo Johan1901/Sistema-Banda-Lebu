@@ -22,14 +22,12 @@ const instrumentoBodySchema = Joi.object({
         "any.required": "El estado es obligatorio.",
         "string.base": "El estado debe ser de tipo string.",
     }),
-    implemento: Joi.string().valid(...IMPLEMENTOS).optional().messages({
+    implemento: Joi.string().valid(...IMPLEMENTOS).required().messages({
         "string.empty": "El implemento no puede estar vacío.",
         "any.required": "El implemento es obligatorio.",
         "string.base": "El implemento debe ser de tipo string.",
     }),
-}).messages({
-    "object.unknown": "No se permiten propiedades adicionales.",
-});
+}).unknown(true);
 
 const instrumentoIdSchema = Joi.object({
     id: Joi.string()
