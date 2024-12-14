@@ -9,7 +9,6 @@ const CrearActividad = () => {
     fecha: "",
     hora: "",
     lugar: "",
-    participantes: [],
   });
 
   const handleChange = (e) => {
@@ -23,7 +22,7 @@ const CrearActividad = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await createActividad(actividad);
+      await createActividad(actividad); // Envía los datos sin participantes
       showSuccessAlert("Actividad creada correctamente");
       // Limpiar los campos del formulario
       setActividad({
@@ -32,7 +31,6 @@ const CrearActividad = () => {
         fecha: "",
         hora: "",
         lugar: "",
-        participantes: [],
       });
     } catch (error) {
       showErrorAlert("Error al crear actividad");
@@ -45,7 +43,7 @@ const CrearActividad = () => {
       <form onSubmit={handleSubmit} className="space-y-4 mt-4">
         <div>
           <label htmlFor="titulo" className="block text-sm font-medium text-gray-600">
-            Titulo
+            Título
           </label>
           <input
             id="titulo"
@@ -108,21 +106,6 @@ const CrearActividad = () => {
             value={actividad.lugar}
             onChange={handleChange}
             type="text"
-            className="w-full border border-gray-300 rounded-md py-2 px-3 bg-gray-100 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="participantes" className="block text-sm font-medium text-gray-600">
-            Participantes
-          </label>
-          <input
-            id="participantes"
-            name="participantes"
-            value={actividad.participantes}
-            onChange={handleChange}
-            type="text"
-            placeholder="Agregar participantes"
             className="w-full border border-gray-300 rounded-md py-2 px-3 bg-gray-100 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>

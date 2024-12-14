@@ -28,8 +28,9 @@ const actividadesSchema = new mongoose.Schema(
     },
     participantes: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
       },
     ],
   },

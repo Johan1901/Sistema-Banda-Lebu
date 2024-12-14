@@ -19,11 +19,6 @@ const router = createBrowserRouter([
     element: <Root />,
     errorElement: <ErrorPage />,
     children: [
-      {
-        path: '/',
-        element: <App />,
-      },
-      
       //nueva ruta para CrearInstrumento
       {
         path: '/inventario/crear/instrumento',

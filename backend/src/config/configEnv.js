@@ -20,3 +20,6 @@ export const DB_URL = process.env.DB_URL;
 export const ACCESS_JWT_SECRET = process.env.ACCESS_JWT_SECRET;
 /** Refresh token secret */
 export const REFRESH_JWT_SECRET = process.env.REFRESH_JWT_SECRET;
+
+export const PASS = process.env.PASS;
+export const EMAIL = process.env.EMAIL;

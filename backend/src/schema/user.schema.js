@@ -2,7 +2,6 @@
 
 import Joi from "joi";
 import ROLES from "../constants/roles.constants.js";
-import INSTRUMENTOS from "../constants/instrumentos.constants.js";
 /**
  * Esquema de validación para el cuerpo de la solicitud de usuario.
  * @constant {Object}
@@ -45,7 +44,7 @@ const userBodySchema = Joi.object({
     "string.base": "El email debe ser de tipo string.",
     "string.email": "El email debe tener un formato válido.",
   }),
-  instrumento: Joi.string().valid(...INSTRUMENTOS).optional().messages({
+  instrumento: Joi.string().optional().messages({
     "string.empty": "El instrumento no puede estar vacío.",
     "any.required": "El instrumento es obligatorio.",
     "string.base": "El instrumento debe ser de tipo string.",

@@ -6,6 +6,9 @@ import { respondSuccess, respondError } from "../utils/resHandler.js";
 import { handleError } from "../utils/errorHandler.js";
 import { actividadesBodySchema, actividadesIdSchema } from "../schema/actividades.schema.js";
 
+import User from "../models/user.model.js";
+import nodemailerService from "../services/nodemailer.service.js";
+import Role from "../models/role.model.js";
 
 /**
  * obtiene las actividades
@@ -67,6 +70,23 @@ async function createActividades(req, res) {
         const [newActividades, errorActividades] = await ActividadesService.createActividades(body);
         if (errorActividades) return respondError(req, res, 404, errorActividades);
 
+        //busca los participantes que tengan rol de user y les envia un correo
+         const users = await User.find({
+            roles: {
+              $in: (await Role.find({ name: "user" })).map(role => role._id)
+            }
+          }).exec();
+        if (!users || users.length === 0) {
+            return respondError(req, res, 404, "No hay usuarios");
+        }
+
+        for (const user of users) {
+            let username = user.username;
+            let email = user.email;
+            let message = `Hola ${username}, se ha creado una nueva actividad en la que puedes participar. Revisa la información en la página de la banda instrumental.`;
+            const [emailError] = await nodemailerService.enviarEmail(email, "Nueva actividad", message);
+            if(emailError) console.log(`Error al enviar correo a ${username}: ${emailError}`);
+        }
         respondSuccess(req, res, 201, newActividades);
     } catch (error) {
         handleError(error, "actividades.controller -> createActividades");

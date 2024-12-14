@@ -3,38 +3,56 @@
 import { handleError } from "../utils/errorHandler.js";
 //import User from "../models/user.model.js";
 import Actividades from "../models/actividades.model.js";
+import User from "../models/user.model.js";
 
-async function createActividades(actividades){
-    try{
-    const { titulo, descripcion, fecha, hora, lugar, participantes } = actividades;
 
-    const newActividades = new Actividades({
-        titulo,
-        descripcion,
-        fecha,
-        hora,
-        lugar,
-        participantes,
-    });
-    await newActividades.save();
-    return [newActividades, null];
+async function createActividades(actividades) {
+    try {
+        // Busca los usuarios excepto el admin y extrae solo sus IDs
+        const usuarios = await User.find({ role: { $ne: "admin" } }).exec();
+        const participantes = usuarios.map((usuario) => usuario._id);
+
+        const { titulo, descripcion, fecha, hora, lugar } = actividades;
+        const actividad = new Actividades({
+            titulo,
+            descripcion,
+            fecha,
+            hora,
+            lugar,
+            participantes
+            
+        });
+        await actividad.save();
+        // Devuelve la actividad creada
+        return [actividad, null];
     } catch (error) {
         handleError(error, "actividades.service -> createActividades");
+        return [null, error.message];
     }
 }
 
 
-async function getActividades(){
+
+async function getActividades() {
     try {
-        const actividades = await Actividades.find().exec();
-        if (!actividades) return [null, "No hay actividades"];
+        // Obtén todas las actividades y usa populate para traer los participantes con su nombre
+        const actividades = await Actividades.find()
+            .populate("participantes", "username") // Reemplaza los ObjectId con el nombre de los participantes
+            .exec();
 
+        // Si no hay actividades, devuelve un mensaje de error
+        if (!actividades || actividades.length === 0) {
+            return [null, "No hay actividades"];
+        }
+
+        // Devuelve las actividades con los participantes populados
         return [actividades, null];
-    }
-    catch (error) {
+    } catch (error) {
         handleError(error, "actividades.service -> getActividades");
+        return [null, error.message]; // En caso de error, devuelve el mensaje de error
     }
 }
+
 
 async function getActividad(id){
     try {
