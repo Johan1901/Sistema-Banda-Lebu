@@ -1,4 +1,3 @@
-// modelo de actividades para banda instrumental
 "use strict";
 // importa el modulo 'mongoose' para crear la conexion a la base de datos
 import mongoose from "mongoose";
@@ -28,13 +27,24 @@ const actividadesSchema = new mongoose.Schema(
     },
     participantes: [
       {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-          required: true,
+        integrante: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
+        estado: {
+            type: String,
+            enum: ['pendiente', 'confirmado', "no participa"],
+            default: 'pendiente',
+        },
+        justificacion: {
+            type: String,
+            default: null,
+        },
       },
     ],
   },
 );
 
 const Actividades = mongoose.model("Actividades", actividadesSchema);
-export default   Actividades;
+export default Actividades;

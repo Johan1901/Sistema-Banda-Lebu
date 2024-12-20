@@ -96,3 +96,38 @@ export const deleteActividad = async (id) => {
         throw error.response.data
     }
 };
+
+export const confirmarParticipacion = async (id, participanteId, participacion, justificacion) => {
+    try {
+        const token = getToken();
+        if (!token) {
+        throw new Error("No hay un token de autenticación");
+        }
+        const response = await axios.patch(`${API_URL}/${id}/confirmarParticipacion/${participanteId}`, {participacion, justificacion }, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+        });
+        return response.data;
+    } catch (error) {
+       return {};
+    }
+};
+
+export const confirmarParticipacionesAdmin = async (id, participanteId, participacion, justificacion) => {
+    try {
+        const token = getToken();
+        if (!token) {
+        throw new Error("No hay un token de autenticación");
+        }
+        const response = await axios.patch(`${API_URL}/${id}/confirmarParticipacionesAdmin/${participanteId}`, {participacion, justificacion}, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+        });
+         return response.data;
+    } catch (error) {
+        const response = error?.response?.data || {};
+       return response;
+    }
+};

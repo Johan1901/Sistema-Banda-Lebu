@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { deleteIntegrante, getIntegrantes } from "../services/integrantes.service.js";
 import { showSuccessAlert, showErrorAlert } from "./Alertmsg.jsx";
+import { useAuth } from "../context/AuthContext";
 
 const VerIntegrantes = () => {
   const [integrantes, setIntegrantes] = useState([]);
@@ -9,6 +10,9 @@ const VerIntegrantes = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   
+  const { user } = useAuth(); // Obtener el usuario del contexto
+  const isAdmin = user?.roles?.some(role => role.name === 'admin'); // Manejo opcional de usuario no logueado
+
   // Fetch data when the component is mounted
   useEffect(() => {
     fetchIntegrantes();
@@ -67,17 +71,42 @@ const VerIntegrantes = () => {
     return `${day}/${month}/${year}`;
   };
 
+    // Función para renderizar botones de acción
+    const renderActionButtons = (integrante) => {
+        if (isAdmin) {
+           return (
+              <td className="px-4 py-2 text-sm">
+                  <button
+                      onClick={() => handleDelete(integrante._id)}
+                      className="bg-red-500 text-white py-1 px-3 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 mr-2"
+                  >
+                    Eliminar
+                  </button>
+                  <button
+                      onClick={() => navigate(`/integrantes/editar/${integrante._id}`)}
+                      className="bg-blue-500 text-white py-1 px-3 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  >
+                    Editar
+                  </button>
+               </td>
+           )
+        }
+           return <td className="px-4 py-2 text-sm"></td>
+    }
+
   return (
     <div className="max-w-7xl mx-auto p-4">
       <h1 className="text-3xl font-semibold text-center mb-6 text-gray-900">Integrantes</h1>
-      <div className="flex justify-end mb-4">
-        <button
-          onClick={() => navigate("/users/crear")}
-          className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-        >
-          Crear integrante
-        </button>
-      </div>
+      {isAdmin && (
+          <div className="flex justify-end mb-4">
+              <button
+                  onClick={() => navigate("/users/crear")}
+                  className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              >
+                  Crear integrante
+              </button>
+          </div>
+      )}
       {loading ? (
         <div className="text-center text-xl text-gray-500">Cargando...</div>
       ) : error ? (
@@ -104,20 +133,7 @@ const VerIntegrantes = () => {
                 <td className="px-4 py-2 text-sm text-gray-800">{integrante.telefono}</td>
                 <td className="px-4 py-2 text-sm text-gray-800">{integrante.email}</td>
                 <td className="px-4 py-2 text-sm text-gray-800">{integrante.instrumento}</td>
-                <td className="px-4 py-2 text-sm">
-                  <button
-                    onClick={() => handleDelete(integrante._id)}
-                    className="bg-red-500 text-white py-1 px-3 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 mr-2"
-                  >
-                    Eliminar
-                  </button>
-                  <button
-                    onClick={() => navigate(`/integrantes/editar/${integrante._id}`)}
-                    className="bg-blue-500 text-white py-1 px-3 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  >
-                    Editar
-                  </button>
-                </td>
+                {renderActionButtons(integrante)}
               </tr>
             ))}
           </tbody>

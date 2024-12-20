@@ -1,11 +1,9 @@
 "use strict";
 
 import ActividadesService from "../services/actividades.service.js";
-
 import { respondSuccess, respondError } from "../utils/resHandler.js";
 import { handleError } from "../utils/errorHandler.js";
-import { actividadesBodySchema, actividadesIdSchema } from "../schema/actividades.schema.js";
-
+import { actividadesBodySchema, actividadesIdSchema, confirmarParticipacionSchema } from "../schema/actividades.schema.js";
 import User from "../models/user.model.js";
 import nodemailerService from "../services/nodemailer.service.js";
 import Role from "../models/role.model.js";
@@ -148,61 +146,82 @@ async function deleteActividades(req, res) {
 }
 
 /**
- * añade participantes a una actividad
+ * confirma la participacion de un usuario especifico a si mismo a una actividad
+ * rellenando el participanteId con el id del usuario que realiza la peticion
  * @param {Object} req
  * @param {Object} res
  * 
  */
+async function confirmarParticipacion(req, res) {
+    try {
+        const { id, participanteId } = req.params;
+        const { body } = req;
 
-// async function addParticipantes(req, res) {
-//     try {
-//         const { id } = req.params;
-//         const { body } = req;
-//         const { error: idError } = actividadesIdSchema.validate({ id });
-//         if (idError) return respondError(req, res, 400, idError.message);
+        const { error: idError } = actividadesIdSchema.validate({ id });
+        if (idError) return respondError(req, res, 400, idError.message);
 
-//         const { error: bodyError } = actividadesBodySchema.validate(body);
-//         if (bodyError) return respondError(req, res, 400, bodyError.message);
+         // Agregar participanteId al body
+        const bodyWithId = { ...body, participanteId };
+        const { error: bodyError } = confirmarParticipacionSchema.validate(bodyWithId);
+        if (bodyError) return respondError(req, res, 400, bodyError.message);
 
-//         const [updatedActividades, errorActividades] = await ActividadesService.addParticipantes(id, body);
-//         if (errorActividades) return respondError(req, res, 404, errorActividades);
+       // Buscar el usuario por ID
+        const user = await User.findById(participanteId);
+        if (!user) {
+          return respondError(req, res, 404, "No se encontró el usuario que corresponde al id de participante");
+        }
 
-//         respondSuccess(req, res, 200, updatedActividades);
-//     } catch (error) {
-//         handleError(error, "actividades.controller -> addParticipantes");
-//         respondError(req, res, 400, error.message);
-//     }
+        // verifica que el correo del usuario en la base de datos corresponda al correo del token
+       if (user.email !== req.email) {
+          return respondError(req, res, 403, "No tienes permiso para realizar esta acción");
+        }
 
-// }
+        const { participacion, justificacion } = bodyWithId;
+        const [updatedActividades, errorActividades] = await ActividadesService.confirmarParticipacion(id, participanteId, participacion, justificacion);
+        if (errorActividades) return respondError(req, res, 404, errorActividades);
 
-// /**
-//  * elimina un participante de una actividad
-//  * @param {Object} req
-//  * @param {Object} res
-//  * 
-//  */
+        respondSuccess(req, res, 200, updatedActividades);
+    } catch (error) {
+        handleError(error, "actividades.controller -> confirmarParticipacion");
+        respondError(req, res, 400, error.message);
+    }
+}
 
 
-// async function deleteParticipante(req, res) {
-//     try {
-//         const { id } = req.params;
-//         const { body } = req;
-//         const { error: idError } = actividadesIdSchema.validate({ id });
-//         if (idError) return respondError(req, res, 400, idError.message);
+/**
+ * updateParticipante - actualiza el estado del participante en una actividad
+ * @param {Object} req
+ * @param {Object} res
+ */
 
-//         const { error: bodyError } = actividadesBodySchema.validate(body);
-//         if (bodyError) return respondError(req, res, 400, bodyError.message);
+async function confirmarParticipacionesAdmin(req, res) {
+    try {
+        const { id } = req.params;
+        const { body } = req;
 
-//         const [updatedActividades, errorActividades] = await ActividadesService.deleteParticipante(id, body);
-//         if (errorActividades) return respondError(req, res, 404, errorActividades);
+        const { error: idError } = actividadesIdSchema.validate({ id });
+        if (idError) return respondError(req, res, 400, idError.message);
 
-//         respondSuccess(req, res, 200, updatedActividades);
-//     } catch (error) {
-//         handleError(error, "actividades.controller -> deleteParticipante");
-//         respondError(req, res, 400, error.message);
-//     }
+        // Obtener el ID del participante de la URL
+       const { participanteId } = req.params;
 
-// }
+       // Agregar participanteId al body
+       const bodyWithId = { ...body, participanteId };
+       const { error: bodyError } = confirmarParticipacionSchema.validate(bodyWithId);
+       if (bodyError) return respondError(req, res, 400, bodyError.message);
+
+        const { participacion, justificacion } = bodyWithId;
+
+        const [updatedActividades, errorActividades] = await ActividadesService.confirmarParticipacion(id, participanteId, participacion, justificacion);
+        if (errorActividades) return respondError(req, res, 404, errorActividades);
+
+        respondSuccess(req, res, 200, updatedActividades);
+    } catch (error) {
+        handleError(error, "actividades.controller -> confirmarParticipacionesAdmin");
+        respondError(req, res, 400, error.message);
+    }
+}
+
 
 
 
@@ -212,6 +231,6 @@ export default {
     createActividades,
     updateActividades,
     deleteActividades,
-    // addParticipantes,
-    // deleteParticipante
+    confirmarParticipacion,
+    confirmarParticipacionesAdmin
 };

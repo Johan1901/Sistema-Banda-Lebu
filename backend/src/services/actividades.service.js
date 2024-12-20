@@ -1,16 +1,17 @@
 "use strict";
 
 import { handleError } from "../utils/errorHandler.js";
-//import User from "../models/user.model.js";
 import Actividades from "../models/actividades.model.js";
 import User from "../models/user.model.js";
-
 
 async function createActividades(actividades) {
     try {
         // Busca los usuarios excepto el admin y extrae solo sus IDs
         const usuarios = await User.find({ role: { $ne: "admin" } }).exec();
-        const participantes = usuarios.map((usuario) => usuario._id);
+        const participantes = usuarios.map((usuario) => ({
+            integrante: usuario._id,
+            estado: "pendiente",
+        }));
 
         const { titulo, descripcion, fecha, hora, lugar } = actividades;
         const actividad = new Actividades({
@@ -20,7 +21,7 @@ async function createActividades(actividades) {
             hora,
             lugar,
             participantes
-            
+
         });
         await actividad.save();
         // Devuelve la actividad creada
@@ -31,13 +32,14 @@ async function createActividades(actividades) {
     }
 }
 
-
-
 async function getActividades() {
     try {
         // Obtén todas las actividades y usa populate para traer los participantes con su nombre
         const actividades = await Actividades.find()
-            .populate("participantes", "username") // Reemplaza los ObjectId con el nombre de los participantes
+            .populate({
+              path: "participantes.integrante",
+              select: "username",
+            })
             .exec();
 
         // Si no hay actividades, devuelve un mensaje de error
@@ -53,40 +55,49 @@ async function getActividades() {
     }
 }
 
-
-async function getActividad(id){
+async function getActividad(id) {
     try {
-        const actividad = await Actividades.findById(id).exec();
+        const actividad = await Actividades.findById(id)
+        .populate({
+            path: "participantes.integrante",
+            select: "username",
+          })
+        .exec();
         if (!actividad) return [null, "No se encontró la actividad"];
 
         return [actividad, null];
     }
     catch (error) {
         handleError(error, "actividades.service -> getActividad");
+        return [null, error.message]
     }
 }
 
-async function updateActividades(id, actividades){
+async function updateActividades(id, actividades) {
     try {
         const { titulo, descripcion, fecha, hora, lugar, participantes } = actividades;
-
-        const updatedActividades = await Actividades.findByIdAndUpdate(id, {
-            titulo,
-            descripcion,
-            fecha,
-            hora,
-            lugar,
-            participantes
-        }, { new: true });
+        const updatedActividades = await Actividades.findByIdAndUpdate(
+            id,
+            {
+                titulo,
+                descripcion,
+                fecha,
+                hora,
+                lugar,
+                participantes
+            },
+            { new: true }
+        ).exec();
         if (!updatedActividades) return [null, "No se encontró la actividad"];
         return [updatedActividades, null];
     }
     catch (error) {
         handleError(error, "actividades.service -> updateActividades");
+        return [null, error.message]
     }
 }
 
-async function deleteActividades(id){
+async function deleteActividades(id) {
     try {
         const deletedActividades = await Actividades.findByIdAndDelete(id).exec();
         if (!deletedActividades) return [null, "No se encontró la actividad"];
@@ -94,61 +105,42 @@ async function deleteActividades(id){
     }
     catch (error) {
         handleError(error, "actividades.service -> deleteActividades");
+        return [null, error.message]
     }
 }
 
-// funcion para agregar a todos los participantes a una actividad
-// async function addParticipantes(id, participantes){
-//     try {
-//         const updatedActividades = await Actividades.findByIdAndUpdate(id, {
-//             participantes
-//         }, { new: true });
-//         if (!updatedActividades) return [null, "No se encontró la actividad"];
-//         return [updatedActividades, null];
-//     }
-//     catch (error) {
-//         handleError(error, "actividades.service -> addParticipantes");
-//     }
-// }
+//confirma la participacion de un usuario en una actividad
+async function confirmarParticipacion(id, participanteId, participacion, justificacion) {
+    try {
+        let update = { $set: { "participantes.$.estado": participacion } };
 
-// // funcion para eliminar a un participante de una actividad
-// async function deleteParticipante(id, participante){
-//     try {
-//         const updatedActividades = await Actividades.findByIdAndUpdate(id, {
-//             $pull: { participantes: participante }
-//         }, { new: true });
-//         if (!updatedActividades) return [null, "No se encontró la actividad"];
-//         return [updatedActividades, null];
-//     }
-//     catch (error) {
-//         handleError(error, "actividades.service -> deleteParticipante");
-//     }
-// }
+        if (participacion === "no participa" && justificacion) {
+            update = {
+                $set: {
+                    "participantes.$.estado": participacion,
+                    "participantes.$.justificacion": justificacion
+                }
+            };
+        }
 
-// //funcion para actualizar la participacion de un usuario en una actividad
-// async function updateParticipante(id, participante, participacion){
-//     try {
-//         const updatedActividades = await Actividades.findByIdAndUpdate
-//         (id, { $set: { "participantes.$[elem].participacion" : participacion } },
-//         { arrayFilters: [{ "elem.usuario": participante }], new: true });
-//         if (!updatedActividades) return [null, "No se encontró la actividad"];
-//         return [updatedActividades, null];
-//     }
-//     catch (error) {
-//         handleError(error, "actividades.service -> updateParticipante");
-//     }
-    
-// }
+        const updatedActividades = await Actividades.findOneAndUpdate(
+            { _id: id, "participantes.integrante": participanteId },
+            update,
+            { new: true }
+        ).exec();
+        if (!updatedActividades) return [null, "No se encontró la actividad o el participante"];
+        return [updatedActividades, null];
+    } catch (error) {
+        handleError(error, "actividades.service -> confirmarParticipacion");
+        return [null, error.message];
+    }
+}
 
-
-
-export default { 
+export default {
     createActividades,
     getActividades,
     getActividad,
     updateActividades,
     deleteActividades,
-    // addParticipantes,
-    // deleteParticipante,
-    // updateParticipante
+    confirmarParticipacion
 };
