@@ -95,3 +95,20 @@ export const deleteIntegrante = async (id) => {
         throw new Error(error);
     }
 };
+
+export const getIntegranteByEmail = async (email) => {
+    try {
+        const token = getToken();
+        if (!token) {
+        throw new Error("No hay un token de autenticación");
+        }
+        const response = await axios.get(`${API_URL}/email/${email}`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+};

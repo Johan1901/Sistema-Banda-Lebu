@@ -1,9 +1,9 @@
+// Mongoose Schema (instrumento.model.js)
 "use strict";
 
 import mongoose from "mongoose";
-import MARCA from "../constants/marca.constants.js";
 import ESTADO from "../constants/estado.constants.js";
-import IMPLEMENTOS from "../constants/implementos.constants.js";
+import ASIGNADO from "../constants/asignado.constants.js";
 
 const instrumentoSchema = new mongoose.Schema({
     nombre: {
@@ -12,18 +12,23 @@ const instrumentoSchema = new mongoose.Schema({
     },
     marca: {
         type: String,
-        enum: MARCA,
         required: true,
     },
-    estado: {
+    estadoCalidad: {
         type: String,
         enum: ESTADO,
         required: true,
     },
-    implemento: {
-        type: String,
-        enum: IMPLEMENTOS,
-        required: true,
+    implemento: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Implemento",
+        required: false, // Make implemento optional in the schema
+    }],
+    asignadoA: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: null, // Keep default null, as it's optional, but can store a value or null
+        required: false, //Make asignadoA optional in the schema
     },
 });
 

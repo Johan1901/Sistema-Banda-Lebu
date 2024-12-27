@@ -38,7 +38,7 @@ async function getActividades() {
         const actividades = await Actividades.find()
             .populate({
               path: "participantes.integrante",
-              select: "username",
+              select: ["username", "email"],
             })
             .exec();
 
@@ -60,7 +60,7 @@ async function getActividad(id) {
         const actividad = await Actividades.findById(id)
         .populate({
             path: "participantes.integrante",
-            select: "username",
+            select: ["username", "email"],
           })
         .exec();
         if (!actividad) return [null, "No se encontró la actividad"];

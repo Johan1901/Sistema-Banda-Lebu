@@ -3,6 +3,7 @@
 import User from "../models/user.model.js";
 import Role from "../models/role.model.js";
 import { handleError } from "../utils/errorHandler.js";
+import { get } from "mongoose";
 
 /**
  * Obtiene todos los usuarios de la base de datos
@@ -137,10 +138,35 @@ async function deleteUser(id) {
   }
 }
 
+/**
+ * obtiene un usuario por su email
+ * @param {string} email
+ * @returns {Promise} Promesa con el objeto de usuario
+ */
+
+async function getUserByEmail(email) {
+  try {
+    const user = await User.findOne({
+      email,
+    })
+      .select("-password")
+      .populate("roles")
+      .exec();
+    if (!user) {
+      return [null, "El usuario no existe"];
+    }
+    return [user, null];
+  }
+  catch (error) {
+    handleError(error, "user.service -> getUserByEmail");
+  }
+}
+
 export default {
   getUsers,
   createUser,
   getUserById,
   updateUser,
   deleteUser,
+  getUserByEmail,
 };

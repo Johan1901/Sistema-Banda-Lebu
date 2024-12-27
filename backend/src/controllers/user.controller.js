@@ -123,10 +123,35 @@ async function deleteUser(req, res) {
   }
 }
 
+/**
+ * busca un usuario por su email
+ * @param {Object} req - Objeto de petición
+ * @param {Object} res - Objeto de respuesta
+ * 
+ */
+async function getUserByEmail(req, res) {
+  try {
+      const { email } = req.params;
+      const [user, errorUser] = await UserService.getUserByEmail(email);
+      if (errorUser) return respondError(req, res, 404, errorUser);
+     const userData = {
+         _id: user._id,
+         username: user.username,
+         email: user.email,
+     };
+      respondSuccess(req, res, 200, userData);
+  } catch (error) {
+      handleError(error, "user.controller -> getUserByEmail");
+      respondError(req, res, 400, error.message);
+  }
+}
+
+
 export default {
   getUsers,
   createUser,
   getUserById,
   updateUser,
   deleteUser,
+  getUserByEmail,
 };

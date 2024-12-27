@@ -103,7 +103,7 @@ export const confirmarParticipacion = async (id, participanteId, participacion, 
         if (!token) {
         throw new Error("No hay un token de autenticación");
         }
-        const response = await axios.patch(`${API_URL}/${id}/confirmarParticipacion/${participanteId}`, {participacion, justificacion }, {
+        const response = await axios.patch(`${API_URL}/${id}/confirmarParticipacion/${participanteId}`, { participacion, justificacion }, {
         headers: {
             Authorization: `Bearer ${token}`
         }

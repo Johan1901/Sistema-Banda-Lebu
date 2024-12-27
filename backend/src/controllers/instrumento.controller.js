@@ -10,18 +10,17 @@ import { handleError } from "../utils/errorHandler.js";
  * @param {Object} req - Objeto de petición
  * @param {Object} res - Objeto de respuesta
  */
-
 async function getInstrumentos(req, res) {
     try {
-        const [instrumentos, errorInstrumentos] = await InstrumentoService.getInstrumentos();
-        if (errorInstrumentos) return respondError(req, res, 404, errorInstrumentos);
+        const [instrumentos, error] = await InstrumentoService.getInstrumentos();
+        if (error) return respondError(req, res, 404, error);
     
         instrumentos.length === 0
         ? respondSuccess(req, res, 204)
         : respondSuccess(req, res, 200, instrumentos);
     } catch (error) {
         handleError(error, "instrumento.controller -> getInstrumentos");
-        respondError(req, res, 400, error.message);
+        respondError(req, res, 500, "No se pudo obtener los instrumentos");
     }
 }
 
@@ -30,24 +29,20 @@ async function getInstrumentos(req, res) {
  * @param {Object} req - Objeto de petición
  * @param {Object} res - Objeto de respuesta
  */
-
 async function createInstrumento(req, res) {
     try {
         const { body } = req;
         const { error: bodyError } = instrumentoBodySchema.validate(body);
         if (bodyError) return respondError(req, res, 400, bodyError.message);
     
-        const [newInstrumento, instrumentoError] = await InstrumentoService.createInstrumento(body);
+        const [newInstrumento, error] = await InstrumentoService.createInstrumento(body);
     
-        if (instrumentoError) return respondError(req, res, 400, instrumentoError);
-        if (!newInstrumento) {
-            return respondError(req, res, 400, "No se creo el instrumento");
-        }
+        if (error) return respondError(req, res, 400, error);
     
         respondSuccess(req, res, 201, newInstrumento);
     } catch (error) {
         handleError(error, "instrumento.controller -> createInstrumento");
-        respondError(req, res, 500, "No se creo el instrumento");
+        respondError(req, res, 500, "No se pudo crear el instrumento");
     }
 }
 
@@ -56,20 +51,19 @@ async function createInstrumento(req, res) {
  * @param {Object} req - Objeto de petición
  * @param {Object} res - Objeto de respuesta
  */
-
-async function getInstrumentoById(req, res) {
+async function getInstrumento(req, res) {
     try {
         const { params } = req;
         const { error: paramsError } = instrumentoIdSchema.validate(params);
         if (paramsError) return respondError(req, res, 400, paramsError.message);
     
-        const [instrumento, errorInstrumento] = await InstrumentoService.getInstrumentoById(params.id);
-        if (errorInstrumento) return respondError(req, res, 404, errorInstrumento);
+        const [instrumento, error] = await InstrumentoService.getInstrumento(params.id);
+        if (error) return respondError(req, res, 404, error);
     
         respondSuccess(req, res, 200, instrumento);
     } catch (error) {
-        handleError(error, "instrumento.controller -> getInstrumentoById");
-        respondError(req, res, 400, error.message);
+        handleError(error, "instrumento.controller -> getInstrumento");
+        respondError(req, res, 500, "No se pudo obtener el instrumento");
     }
 }
 
@@ -78,7 +72,6 @@ async function getInstrumentoById(req, res) {
  * @param {Object} req - Objeto de petición
  * @param {Object} res - Objeto de respuesta
  */
-
 async function updateInstrumento(req, res) {
     try {
         const { params, body } = req;
@@ -88,13 +81,13 @@ async function updateInstrumento(req, res) {
         const { error: bodyError } = instrumentoBodySchema.validate(body);
         if (bodyError) return respondError(req, res, 400, bodyError.message);
     
-        const [updatedInstrumento, errorInstrumento] = await InstrumentoService.updateInstrumento(params.id, body);
-        if (errorInstrumento) return respondError(req, res, 404, errorInstrumento);
+        const [updatedInstrumento, error] = await InstrumentoService.updateInstrumento(params.id, body);
+        if (error) return respondError(req, res, 404, error);
     
         respondSuccess(req, res, 200, updatedInstrumento);
     } catch (error) {
         handleError(error, "instrumento.controller -> updateInstrumento");
-        respondError(req, res, 400, error.message);
+        respondError(req, res, 500, "No se pudo actualizar el instrumento");
     }
 }
 
@@ -103,29 +96,79 @@ async function updateInstrumento(req, res) {
  * @param {Object} req - Objeto de petición
  * @param {Object} res - Objeto de respuesta
  */
-
 async function deleteInstrumento(req, res) {
     try {
         const { params } = req;
         const { error: paramsError } = instrumentoIdSchema.validate(params);
         if (paramsError) return respondError(req, res, 400, paramsError.message);
     
-        const [deletedInstrumento, errorInstrumento] = await InstrumentoService.deleteInstrumento(params.id);
-        if (errorInstrumento) return respondError(req, res, 404, errorInstrumento);
+        const [deletedInstrumento, error] = await InstrumentoService.deleteInstrumento(params.id);
+        if (error) return respondError(req, res, 404, error);
     
-        respondSuccess(req, res, 200, deletedInstrumento);
+        respondSuccess(req, res, 204, deletedInstrumento);
     } catch (error) {
         handleError(error, "instrumento.controller -> deleteInstrumento");
-        respondError(req, res, 400, error.message);
+        respondError(req, res, 500, "No se pudo eliminar el instrumento");
     }
-
 }
+
+
+/**
+ * Asigna un instrumento a un usuario
+ * @param {Object} req - Objeto de petición
+ * @param {Object} res - Objeto de respuesta
+ */
+async function assignInstrumentToUser(req, res) {
+    try {
+        const { params, body } = req;
+        const { error: paramsError } = instrumentoIdSchema.validate(params);
+        if (paramsError) return respondError(req, res, 400, paramsError.message);
+
+        const { asignadoA: userId } = body;
+        if (!userId) return respondError(req, res, 400, "El id del usuario es obligatorio");
+
+        const [assignedInstrument, error] = InstrumentoService.assignInstrumentToUser(params.id, userId);
+        if (error) return respondError(req, res, 404, error);
+
+        respondSuccess(req, res, 200, assignedInstrument);
+    } catch (error) {
+        handleError(error, "instrumento.controller -> assignInstrumentToUser");
+        respondError(req, res, 500, "No se pudo asignar el instrumento al usuario");
+    }
+}
+
+/**
+ * Desasigna un instrumento de un usuario
+ * @param {Object} req - Objeto de petición
+ * @param {Object} res - Objeto de respuesta
+ */
+async function unassignInstrumentFromUser(req, res) {
+    try {
+        const { params, body } = req;
+        const { error: paramsError } = instrumentoIdSchema.validate(params);
+        if (paramsError) return respondError(req, res, 400, paramsError.message);
+
+        const { userId } = body;
+        if (!userId) return respondError(req, res, 400, "El id del usuario es obligatorio");
+
+        const [unassignedInstrument, error] = await InstrumentoService.unassignInstrumentToUser(params.id, userId);
+        if (error) return respondError(req, res, 404, error);
+
+        respondSuccess(req, res, 200, unassignedInstrument);
+    } catch (error) {
+        handleError(error, "instrumento.controller -> unassignInstrumentFromUser");
+        respondError(req, res, 500, "No se pudo desasignar el instrumento al usuario");
+    }
+}
+
+
 
 export default {
     getInstrumentos,
     createInstrumento,
-    getInstrumentoById,
+    getInstrumento,
     updateInstrumento,
-    deleteInstrumento
-}
-
+    deleteInstrumento,
+    assignInstrumentToUser,
+    unassignInstrumentFromUser
+};

@@ -1,87 +1,185 @@
 "use strict";
 
 import Instrumento from "../models/instrumento.model.js";
+import User from "../models/user.model.js";
 import { handleError } from "../utils/errorHandler.js";
-//import Implemento from "../models/implemento.model.js";
 
-async function createInstrumento (instrumento) {
+/**
+ * Crea un nuevo instrumento.
+ * @param {Object} instrumento - Objeto con la información del instrumento.
+ * @returns {[Object|null, Error|null]} - Retorna un array con el nuevo instrumento o un error.
+ */
+async function createInstrumento(instrumento) {
     try {
-        const { nombre, marca, estado, implemento } = instrumento;
+        const { nombre, marca, estadoCalidad, implemento, asignadoA } = instrumento;
+
+        const asignadoAValue = asignadoA === "" ? null : asignadoA;
 
         const newInstrumento = new Instrumento({
             nombre,
             marca,
-            estado,
-            implemento
+            estadoCalidad,
+            implemento,
+            asignadoA: asignadoAValue
         });
         await newInstrumento.save();
 
         return [newInstrumento, null];
-    }
-    catch (error) {
+    } catch (error) {
         handleError(error, "instrumento.service -> createInstrumento");
+        return [null, error];
     }
-};
+}
 
-async function getInstrumentos () {
+/**
+ * Obtiene todos los instrumentos.
+ * @returns {[Array|null, Error|null]} - Retorna un array de instrumentos o un error.
+ */
+async function getInstrumentos() {
     try {
         const instrumentos = await Instrumento.find().exec();
-        if (!instrumentos) return [null, "No hay instrumentos"];
+        if (!instrumentos || instrumentos.length === 0) return [null, "No hay instrumentos disponibles"];
 
         return [instrumentos, null];
-    }
-    catch (error) {
+    } catch (error) {
         handleError(error, "instrumento.service -> getInstrumentos");
+        return [null, error];
     }
 }
 
-async function getInstrumento (id) {
+
+/**
+ * Obtiene un instrumento por su ID.
+ * @param {string} id - ID del instrumento a buscar.
+ * @returns {[Object|null, Error|null]} - Retorna el instrumento o un error.
+ */
+async function getInstrumento(id) {
     try {
         const instrumento = await Instrumento.findById(id).exec();
-        if (!instrumento) return [null, "No se encontró el instrumento"];
+        if (!instrumento) return [null, "No se encontró el instrumento con el ID proporcionado"];
 
         return [instrumento, null];
-    }
-    catch (error) {
+    } catch (error) {
         handleError(error, "instrumento.service -> getInstrumento");
+        return [null, error];
     }
 }
 
-async function updateInstrumento (id, instrumento) {
+/**
+ * Actualiza un instrumento existente por su ID.
+ * @param {string} id - ID del instrumento a actualizar.
+ * @param {Object} instrumento - Objeto con la información actualizada del instrumento.
+ * @returns {[Object|null, Error|null]} - Retorna el instrumento actualizado o un error.
+ */
+async function updateInstrumento(id, instrumento) {
     try {
-        const { nombre, marca, estado, implemento} = instrumento;
+        const { nombre, marca, estadoCalidad, implemento, asignadoA } = instrumento;
 
-        const updatedInstrumento = await Instrumento.findByIdAndUpdate(id, {
-            nombre,
-            marca,
-            estado,
-            implemento
-        }, { new: true });
-        if (!updatedInstrumento) return [null, "No se encontró el instrumento"];
+        const updatedInstrumento = await Instrumento.findByIdAndUpdate(
+            id,
+            {
+                nombre,
+                marca,
+                estadoCalidad,
+                implemento,
+                asignadoA
+            },
+            { new: true }
+        ).exec();
+
+        if (!updatedInstrumento) return [null, "No se encontró el instrumento con el ID proporcionado"];
 
         return [updatedInstrumento, null];
-    }
-    catch (error) {
+    } catch (error) {
         handleError(error, "instrumento.service -> updateInstrumento");
+        return [null, error];
     }
 }
 
-async function deleteInstrumento (id) {
+/**
+ * Elimina un instrumento por su ID.
+ * @param {string} id - ID del instrumento a eliminar.
+ * @returns {[Object|null, Error|null]} - Retorna el instrumento eliminado o un error.
+ */
+async function deleteInstrumento(id) {
     try {
         const deletedInstrumento = await Instrumento.findByIdAndDelete(id).exec();
-        if (!deletedInstrumento) return [null, "No se encontró el instrumento"];
+        if (!deletedInstrumento) return [null, "No se encontró el instrumento con el ID proporcionado"];
 
         return [deletedInstrumento, null];
-    }
-    catch (error) {
+    } catch (error) {
         handleError(error, "instrumento.service -> deleteInstrumento");
+        return [null, error];
     }
 }
 
-export default{
+
+/**
+ * Asigna un instrumento a un usuario.
+ * @param {string} instrumentId - ID del instrumento a asignar.
+ * @param {string} userId - ID del usuario al que se asignará el instrumento.
+ * @returns {[Object|null, Error|null]} - Retorna el instrumento actualizado o un error.
+ */
+async function assignInstrumentToUser(instrumentId, userId) {
+    try {
+        const instrument = await Instrumento.findById(instrumentId);
+        const user = await User.findById(userId);
+
+        if (!instrument) return [null, "No se encontró el instrumento con el ID proporcionado"];
+        if (!user) return [null, "No se encontró el usuario con el ID proporcionado"];
+
+        // Verificar si el instrumento ya está asignado
+        if (instrument.asignadoA) return [null, "El instrumento ya está asignado"];
+        
+        instrument.asignadoA = userId;
+        await instrument.save();
+
+        user.instrumento.push(instrumentId);
+        await user.save();
+
+        return [instrument, null]
+    } catch (error) {
+        handleError(error, "instrumento.service -> assignInstrumentToUser");
+        return [null, error];
+    }
+}
+
+
+/**
+ * Desasigna un instrumento a un usuario.
+ * @param {string} instrumentId - ID del instrumento a desasignar.
+ * @param {string} userId - ID del usuario al que se desasignará el instrumento.
+ * @returns {[Object|null, Error|null]} - Retorna el instrumento actualizado o un error.
+ */
+async function unassignInstrumentToUser(instrumentId, userId) {
+    try {
+        const instrument = await Instrumento.findById(instrumentId);
+        const user = await User.findById(userId);
+
+        if (!instrument) return [null, "No se encontró el instrumento con el ID proporcionado"];
+        if (!user) return [null, "No se encontró el usuario con el ID proporcionado"];
+
+        instrument.asignadoA = null;
+        await instrument.save();
+
+        user.instrumento = user.instrumento.filter(id => id.toString() !== instrumentId);
+        await user.save();
+
+        return [instrument, null];
+    } catch (error) {
+        handleError(error, "instrumento.service -> unassignInstrumentToUser");
+        return [null, error];
+    }
+}
+
+
+
+export default {
     createInstrumento,
     getInstrumentos,
     getInstrumento,
     updateInstrumento,
-    deleteInstrumento
+    deleteInstrumento,
+    assignInstrumentToUser,
+    unassignInstrumentToUser
 };

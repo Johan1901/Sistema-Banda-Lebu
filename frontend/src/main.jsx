@@ -12,6 +12,7 @@ import CrearActividad from './components/CrearActividad.jsx';
 import VerActividades from './components/VerActividades.jsx';
 import CrearIntegrante from './components/CrearIntegrante.jsx';
 import VerIntegrantes from './components/VerIntegrantes.jsx';
+import ActivityDetails from './components/ActivityDetails.jsx';
 
 const router = createBrowserRouter([
   {
@@ -48,6 +49,11 @@ const router = createBrowserRouter([
       {
         path: '/users/ver',
         element: <VerIntegrantes />,
+      },
+      //nueva ruta para ActivityDetails
+      {
+        path: '/actividades/:id',
+        element: <ActivityDetails />,
       },
 
     ],

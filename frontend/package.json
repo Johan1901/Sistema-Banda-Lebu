@@ -11,6 +11,7 @@
     "start": "vite"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "axios": "^1.5.1",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^3.1.2",

@@ -1,13 +1,11 @@
 "use strict";
 
 const mongoose = require("mongoose");
-import INSTRUMENTOS from "../constants/instrumentos.constants.js";
 
 const inventarioSchema = new mongoose.Schema(
     {
-        instrumento: {
+        intrumento: {
         type: String,
-        enum: INSTRUMENTOS,
         required: true,
         },
         stock: {
