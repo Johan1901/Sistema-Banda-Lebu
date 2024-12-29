@@ -3,7 +3,6 @@
 
 import mongoose from "mongoose";
 import ESTADO from "../constants/estado.constants.js";
-import ASIGNADO from "../constants/asignado.constants.js";
 
 const instrumentoSchema = new mongoose.Schema({
     nombre: {

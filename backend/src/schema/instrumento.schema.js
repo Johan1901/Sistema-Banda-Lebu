@@ -1,7 +1,6 @@
 // instrumento.validation.js
 import Joi from "joi";
 import ESTADO from "../constants/estado.constants.js";
-import ASIGNADO from "../constants/asignado.constants.js";
 
 const instrumentoBodySchema = Joi.object({
     nombre: Joi.string().required().messages({
