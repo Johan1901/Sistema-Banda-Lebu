@@ -1,4 +1,4 @@
-// Mongoose Schema (instrumento.model.js)
+// instrumento.model.js
 "use strict";
 
 import mongoose from "mongoose";
@@ -13,21 +13,15 @@ const instrumentoSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    estadoCalidad: {
+    estado: {
         type: String,
         enum: ESTADO,
         required: true,
     },
-    implemento: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Implemento",
-        required: false, // Make implemento optional in the schema
-    }],
     asignadoA: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        default: null, // Keep default null, as it's optional, but can store a value or null
-        required: false, //Make asignadoA optional in the schema
+        type: mongoose.Schema.Types.Mixed, // Cambiamos a Mixed para guardar "libre" o el ObjectId
+        default: "libre", 
+        required: false,
     },
 });
 

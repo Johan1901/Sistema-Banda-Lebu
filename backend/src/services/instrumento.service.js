@@ -11,16 +11,14 @@ import { handleError } from "../utils/errorHandler.js";
  */
 async function createInstrumento(instrumento) {
     try {
-        const { nombre, marca, estadoCalidad, implemento, asignadoA } = instrumento;
+        const { nombre, marca, estado, asignadoA } = instrumento;
 
-        const asignadoAValue = asignadoA === "" ? null : asignadoA;
 
         const newInstrumento = new Instrumento({
             nombre,
             marca,
-            estadoCalidad,
-            implemento,
-            asignadoA: asignadoAValue
+            estado,
+            asignadoA: asignadoA || "libre" // Si viene un valor en asignadoA se usa, sino se usa "libre"
         });
         await newInstrumento.save();
 
@@ -37,10 +35,30 @@ async function createInstrumento(instrumento) {
  */
 async function getInstrumentos() {
     try {
-        const instrumentos = await Instrumento.find().exec();
-        if (!instrumentos || instrumentos.length === 0) return [null, "No hay instrumentos disponibles"];
+         const instrumentos = await Instrumento.find().lean(); // Usamos lean() para mejorar la eficiencia
 
-        return [instrumentos, null];
+        if (!instrumentos || instrumentos.length === 0)
+            return [null, "No hay instrumentos disponibles"];
+
+        // Popula el nombre del usuario si es que está asignado a alguien
+        const instrumentosConUsuario = await Promise.all(
+             instrumentos.map(async (instrumento) => {
+                if (instrumento.asignadoA !== "libre") {
+                const user = await User.findById(instrumento.asignadoA).lean()
+                   
+                    if(user) {
+                        return { ...instrumento, asignadoA: user.nombre };
+                    } else {
+                    return { ...instrumento, asignadoA: "Usuario no encontrado"}    
+                    }
+                   
+                }
+               return instrumento;
+            })
+        );
+
+
+        return [instrumentosConUsuario, null];
     } catch (error) {
         handleError(error, "instrumento.service -> getInstrumentos");
         return [null, error];
@@ -55,8 +73,18 @@ async function getInstrumentos() {
  */
 async function getInstrumento(id) {
     try {
-        const instrumento = await Instrumento.findById(id).exec();
+        const instrumento = await Instrumento.findById(id).lean();
         if (!instrumento) return [null, "No se encontró el instrumento con el ID proporcionado"];
+
+        if (instrumento.asignadoA !== "libre") {
+           const user = await User.findById(instrumento.asignadoA).lean();
+           if(user){
+             instrumento.asignadoA = user.nombre;
+           }else{
+            instrumento.asignadoA = "Usuario no encontrado";
+           }
+          
+        }
 
         return [instrumento, null];
     } catch (error) {
@@ -73,16 +101,15 @@ async function getInstrumento(id) {
  */
 async function updateInstrumento(id, instrumento) {
     try {
-        const { nombre, marca, estadoCalidad, implemento, asignadoA } = instrumento;
+        const { nombre, marca, estado, asignadoA } = instrumento;
 
         const updatedInstrumento = await Instrumento.findByIdAndUpdate(
             id,
             {
                 nombre,
                 marca,
-                estadoCalidad,
-                implemento,
-                asignadoA
+                estado,
+                asignadoA: asignadoA || "libre"
             },
             { new: true }
         ).exec();
@@ -129,7 +156,7 @@ async function assignInstrumentToUser(instrumentId, userId) {
         if (!user) return [null, "No se encontró el usuario con el ID proporcionado"];
 
         // Verificar si el instrumento ya está asignado
-        if (instrument.asignadoA) return [null, "El instrumento ya está asignado"];
+        if (instrument.asignadoA !== "libre") return [null, "El instrumento ya está asignado"];
         
         instrument.asignadoA = userId;
         await instrument.save();
@@ -152,14 +179,16 @@ async function assignInstrumentToUser(instrumentId, userId) {
  * @returns {[Object|null, Error|null]} - Retorna el instrumento actualizado o un error.
  */
 async function unassignInstrumentToUser(instrumentId, userId) {
-    try {
+     try {
         const instrument = await Instrumento.findById(instrumentId);
         const user = await User.findById(userId);
 
         if (!instrument) return [null, "No se encontró el instrumento con el ID proporcionado"];
         if (!user) return [null, "No se encontró el usuario con el ID proporcionado"];
 
-        instrument.asignadoA = null;
+        if(instrument.asignadoA === "libre") return [null, "El instrumento ya está libre"];
+
+        instrument.asignadoA = "libre";
         await instrument.save();
 
         user.instrumento = user.instrumento.filter(id => id.toString() !== instrumentId);
@@ -171,7 +200,6 @@ async function unassignInstrumentToUser(instrumentId, userId) {
         return [null, error];
     }
 }
-
 
 
 export default {

@@ -13,26 +13,17 @@ const instrumentoBodySchema = Joi.object({
         "any.required": "La marca es obligatoria.",
         "string.base": "La marca debe ser de tipo string.",
     }),
-    estadoCalidad: Joi.string().valid(...ESTADO).required().messages({
+    estado: Joi.string().valid(...ESTADO).required().messages({
         "string.empty": "El estado no puede estar vacío.",
         "any.required": "El estado es obligatorio.",
         "string.base": "El estado debe ser de tipo string.",
     }),
-    implemento: Joi.array()
-        .items(
-            Joi.string()
-                .pattern(/^(?:[0-9a-fA-F]{24}|[0-9a-fA-F]{12})$/)
-                .messages({
-                    "string.base": "Cada implemento debe ser de tipo string.",
-                    "string.pattern.base":
-                        "Cada ID de implemento proporcionado no es un ObjectId válido.",
-                })
-        )
-        .optional(),
-    asignadoA: Joi.string().allow("").pattern(/^(?:[0-9a-fA-F]{24}|[0-9a-fA-F]{12})$/).messages({
-        "string.base": "El asignadoA debe ser de tipo string.",
-        "string.pattern.base": "El ID de usuario proporcionado no es un ObjectId válido.",
-    }).optional(),
+    asignadoA: Joi.string()
+        .allow(null, "")
+    .messages({
+        "string.base": "El asignadoA debe ser de tipo string",
+        "string.empty": "El asignadoA no puede ser un string vacío"
+    })
 });
 
 const instrumentoIdSchema = Joi.object({
