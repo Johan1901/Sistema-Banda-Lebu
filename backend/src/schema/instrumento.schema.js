@@ -19,11 +19,13 @@ const instrumentoBodySchema = Joi.object({
         "string.base": "El estado debe ser de tipo string.",
     }),
     asignadoA: Joi.string()
-        .allow(null, "")
-    .messages({
-        "string.base": "El asignadoA debe ser de tipo string",
-        "string.empty": "El asignadoA no puede ser un string vacío"
-    })
+        .optional()
+        .pattern(/^(?:[0-9a-fA-F]{24}|[0-9a-fA-F]{12})$/)
+        .messages({
+            "string.empty": "El id del usuario no puede estar vacío.",
+            "string.base": "El id del usuario debe ser de tipo string.",
+            "string.pattern.base": "El id del usuario proporcionado no es un ObjectId válido.",
+        }),
 });
 
 const instrumentoIdSchema = Joi.object({

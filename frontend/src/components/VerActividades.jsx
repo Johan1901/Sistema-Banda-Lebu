@@ -107,7 +107,7 @@ const VerActividades = () => {
 
     return (
         <div className="container mx-auto">
-            <h1 className="text-3xl font-bold text-center mt-8">Ver Actividades</h1>
+            <h1 className="text-gray-800 text-3xl font-bold text-center mt-8">Actividades</h1>
             {isAdmin && (
                 <div className="flex justify-end mt-4">
                     <button

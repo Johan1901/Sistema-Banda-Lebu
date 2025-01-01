@@ -19,9 +19,10 @@ const instrumentoSchema = new mongoose.Schema({
         required: true,
     },
     asignadoA: {
-        type: mongoose.Schema.Types.Mixed, // Cambiamos a Mixed para guardar "libre" o el ObjectId
-        default: "libre", 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
         required: false,
+        default: null,
     },
 });
 

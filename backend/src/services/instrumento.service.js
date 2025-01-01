@@ -12,15 +12,12 @@ import { handleError } from "../utils/errorHandler.js";
 async function createInstrumento(instrumento) {
     try {
         const { nombre, marca, estado, asignadoA } = instrumento;
-
-
-        const newInstrumento = new Instrumento({
+        const newInstrumento = await Instrumento.create({
             nombre,
             marca,
             estado,
-            asignadoA: asignadoA || "libre" // Si viene un valor en asignadoA se usa, sino se usa "libre"
+            asignadoA: asignadoA || null
         });
-        await newInstrumento.save();
 
         return [newInstrumento, null];
     } catch (error) {
@@ -49,7 +46,7 @@ async function getInstrumentos() {
                     if(user) {
                         return { ...instrumento, asignadoA: user.nombre };
                     } else {
-                    return { ...instrumento, asignadoA: "Usuario no encontrado"}    
+                    return { ...instrumento, asignadoA: null}    
                     }
                    
                 }

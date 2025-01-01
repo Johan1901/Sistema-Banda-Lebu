@@ -99,3 +99,41 @@ export const deleteInstrumento = async (id) => {
   }
 };
 
+export const asignarInstrumento = async (instrumentId, userId) => {
+  try {
+      const token = getToken();
+      if (!token) {
+      throw new Error("No hay un token de autenticación");
+      }
+
+      const response = await axios.patch(`${API_URL}/${instrumentId}/assign`, { asignadoA: userId }, {
+      headers: {
+          Authorization: `Bearer ${token}`
+      }
+      });
+
+      return response.data;
+  } catch (error) {
+      throw error.response.data;
+  }
+};
+
+export const desasignarInstrumento = async (instrumentId, userId) => {
+  try {
+      const token = getToken();
+      if (!token) {
+      throw new Error("No hay un token de autenticación");
+      }
+
+      const response = await axios.patch(`${API_URL}/${instrumentId}/unassign`, { userId }, {
+      headers: {
+          Authorization: `Bearer ${token}`
+      }
+      });
+  
+      return response.data;
+  } catch (error) {
+      throw error.response.data;
+  }
+};
+

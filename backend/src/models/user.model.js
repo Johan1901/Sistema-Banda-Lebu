@@ -36,10 +36,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: false, // Indica el instrumento que toca
     },
-    tieneInstrumentoPropio: {
-      type: Boolean,
-      default: false, // Indica si tiene instrumento propio
-    },
     roles: [
       {
         type: mongoose.Schema.Types.ObjectId,
