@@ -44,7 +44,7 @@ async function getInstrumentos() {
                 const user = await User.findById(instrumento.asignadoA).lean()
                    
                     if(user) {
-                        return { ...instrumento, asignadoA: [user._id, user.username] };
+                        return { ...instrumento, asignadoA: user._id };
                     } else {
                     return { ...instrumento, asignadoA: null}    
                     }
@@ -76,7 +76,7 @@ async function getInstrumento(id) {
         if (instrumento.asignadoA !== null) {
            const user = await User.findById(instrumento.asignadoA).lean();
            if(user){
-             instrumento.asignadoA = [user._id, user.username];
+             instrumento.asignadoA = user._id;
            }else{
             instrumento.asignadoA = null;
            }
@@ -174,13 +174,13 @@ async function assignInstrumentToUser(instrumentoId, userId) {
 }
 /**
  * Desasigna un instrumento a un usuario.
- * @param {string} instrumentId - ID del instrumento a desasignar.
+ * @param {string} instrumentoId - ID del instrumento a desasignar.
  * @param {string} userId - ID del usuario al que se desasignará el instrumento.
  * @returns {[Object|null, Error|null]} - Retorna el instrumento actualizado o un error.
  */
-async function unassignInstrumentToUser(instrumentId, userId) {
+async function unassignInstrumentToUser(instrumentoId, userId) {
      try {
-        const instrument = await Instrumento.findById(instrumentId);
+        const instrument = await Instrumento.findById(instrumentoId);
         const user = await User.findById(userId);
 
         if (!instrument) return [null, "No se encontró el instrumento con el ID proporcionado"];

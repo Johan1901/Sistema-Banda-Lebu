@@ -3,7 +3,10 @@ import {
     deleteInstrumento,
     getInstrumentos,
     updateInstrumento,
+    assignedInstrumentToUser,
+    unassignedInstrumentToUser
 } from "../services/instrumento.service.js";
+import { getIntegrantes } from "../services/integrantes.service.js";
 import { showSuccessAlert, showErrorAlert } from "./Alertmsg.jsx";
 
 const VerInstrumentos = () => {
@@ -14,9 +17,16 @@ const VerInstrumentos = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [validationError, setValidationError] = useState("");
     const [openInstrumentGroup, setOpenInstrumentGroup] = useState(null);
+    const [selectedUserId, setSelectedUserId] = useState("");
+    const [integrantes, setIntegrantes] = useState([]);
+    const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+    const [assigningInstrument, setAssigningInstrument] = useState(null);
+     const [userMap, setUserMap] = useState({});
+
 
     useEffect(() => {
         fetchInstrumentos();
+        fetchIntegrantes();
     }, []);
 
     const fetchInstrumentos = async () => {
@@ -36,6 +46,29 @@ const VerInstrumentos = () => {
             setError("No se pudo cargar la lista de instrumentos.");
         }
     };
+
+   const fetchIntegrantes = async () => {
+       try {
+           const response = await getIntegrantes();
+           console.log("Response from getIntegrantes:", response);
+           if (response && response.data) {
+               console.log("Integrantes data:", response.data.data);
+               setIntegrantes(response.data.data);
+                // Create the user map
+                 const map = {};
+                 response.data.data.forEach(user => {
+                   map[user._id] = user.username;
+                 });
+                 setUserMap(map);
+           } else {
+               setError("Error al obtener la lista de integrantes.");
+           }
+       } catch (error) {
+           console.error("Error al obtener integrantes:", error);
+           setError("No se pudo cargar la lista de integrantes.");
+       }
+   };
+
 
     const handleDelete = async (id) => {
         if (!id) {
@@ -69,7 +102,6 @@ const VerInstrumentos = () => {
         setValidationError("");
     };
 
-
     const handleFormChange = (e) => {
         setEditFormData({
             ...editFormData,
@@ -86,13 +118,11 @@ const VerInstrumentos = () => {
         try {
             const response = await updateInstrumento(editingInstrumento._id, editFormData);
             if (response && response.data) {
-              
                 setIsModalOpen(false);
                 setEditingInstrumento(null);
                 setEditFormData({})
                 showSuccessAlert("Instrumento actualizado correctamente");
-                fetchInstrumentos(); // Recargar los instrumentos
-
+                fetchInstrumentos();
             } else {
                 showErrorAlert("Error al actualizar el instrumento: respuesta inesperada del servidor.");
             }
@@ -108,6 +138,69 @@ const VerInstrumentos = () => {
         setEditingInstrumento(null);
         setEditFormData({})
     };
+    const handleOpenAssignModal = (instrumento) => {
+      setAssigningInstrument(instrumento);
+      setSelectedUserId("");
+      setIsAssignModalOpen(true);
+    };
+
+    const handleCloseAssignModal = () => {
+      setIsAssignModalOpen(false);
+      setAssigningInstrument(null);
+      setSelectedUserId("");
+    };
+
+    const handleUserIdChange = (event) => {
+        console.log("Selected user ID:", event.target.value);
+        setSelectedUserId(event.target.value);
+    };
+
+  const handleAssign = async () => {
+      if (!assigningInstrument) {
+          showErrorAlert("No hay instrumento seleccionado para asignar.");
+          return;
+      }
+
+      if(!selectedUserId){
+            showErrorAlert("El id del usuario es obligatorio.");
+          return;
+      }
+      try {
+          const response = await assignedInstrumentToUser(assigningInstrument._id, selectedUserId);
+            console.log("Response from assignedInstrumentToUser:", response);
+          if (response && response.data) {
+
+              showSuccessAlert("Instrumento asignado correctamente");
+               fetchInstrumentos();
+              handleCloseAssignModal();
+          } else {
+              showErrorAlert(response?.message || "Error al asignar el instrumento");
+          }
+      } catch (error) {
+          console.error("Error al asignar instrumento:", error);
+          showErrorAlert(error?.message || "Error al asignar instrumento.");
+      }
+  };
+    const handleDirectUnassign = async (instrumento) => {
+        if (!instrumento || !instrumento.asignadoA) {
+            showErrorAlert("No hay usuario asignado a este instrumento.");
+            return;
+        }
+        try {
+          const response = await unassignedInstrumentToUser(instrumento._id, instrumento.asignadoA);
+            if (response && response.data) {
+              showSuccessAlert("Instrumento desasignado correctamente");
+              fetchInstrumentos();
+
+            } else {
+                showErrorAlert(response?.message || "Error al desasignar el instrumento.");
+            }
+        } catch (error) {
+            console.error("Error al desasignar instrumento:", error);
+            showErrorAlert(error?.message || "Error al desasignar instrumento.");
+        }
+    };
+
 
     const groupedInstruments = instrumentos.reduce((acc, instrumento) => {
         if (!acc[instrumento.nombre]) {
@@ -123,18 +216,18 @@ const VerInstrumentos = () => {
 
     const renderEditForm = () => (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-md shadow-md w-96">
-                <h2 className="text-xl font-bold mb-4">Editar Instrumento</h2>
+            <div className="bg-white p-6 rounded-md shadow-md w-96 text-black">
+                <h2 className="text-xl font-bold mb-4 text-black">Editar Instrumento</h2>
                 <form>
                     {validationError && (
-                        <div className="bg-red-100 text-red-700 p-2 mb-4 rounded">
+                        <div className="bg-red-100 text-red-700 p-2 mb-4 rounded text-black">
                             {validationError}
                         </div>
                     )}
                     <div className="mb-4">
                         <label
                             htmlFor="nombre"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block text-sm font-medium text-gray-700 text-black"
                         >
                             Nombre
                         </label>
@@ -150,7 +243,7 @@ const VerInstrumentos = () => {
                     <div className="mb-4">
                         <label
                             htmlFor="marca"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block text-sm font-medium text-gray-700 text-black"
                         >
                             Marca
                         </label>
@@ -166,7 +259,7 @@ const VerInstrumentos = () => {
                     <div className="mb-4">
                         <label
                             htmlFor="estado"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block text-sm font-medium text-gray-700 text-black"
                         >
                             Estado
                         </label>
@@ -176,10 +269,10 @@ const VerInstrumentos = () => {
                             onChange={handleFormChange}
                             className="w-full border border-gray-300 rounded-md p-2 mt-1 bg-white text-black"
                         >
-                            <option value="">Selecciona un estado</option>
+                            <option value="" className="text-black">Selecciona un estado</option>
                             {["buen estado", "utilizable", "mal estado", "en reparacion"].map(
                                 (estado) => (
-                                    <option key={estado} value={estado}>
+                                    <option key={estado} value={estado} className="text-black">
                                         {estado.charAt(0).toUpperCase() + estado.slice(1)}
                                     </option>
                                 )
@@ -206,13 +299,51 @@ const VerInstrumentos = () => {
             </div>
         </div>
     );
+    const renderAssignModal = () => (
+      <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center text-black">
+        <div className="bg-white p-6 rounded-md shadow-md w-96 text-black">
+          <h2 className="text-xl font-bold mb-4 text-black">Asignar Instrumento</h2>
+          <p className="mb-4 text-black">Selecciona un integrante para asignar el instrumento:</p>
+            <select
+              value={selectedUserId}
+              onChange={handleUserIdChange}
+              className="w-full border border-gray-300 rounded-md p-2 mt-1 bg-white text-black mb-4"
+             >
+                <option value="" className="text-black">Selecciona un integrante</option>
+                  {integrantes.map(integrante => {
+                      return (
+                          <option key={integrante._id} value={integrante._id} className="text-black">
+                            {integrante.username}
+                          </option>
+                        )
+                      })}
+                </select>
+
+          <div className="flex gap-4">
+            <button
+              onClick={handleAssign}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded"
+            >
+              Asignar
+            </button>
+
+            <button
+              onClick={handleCloseAssignModal}
+              className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
 
     return (
-        <div className="container mx-auto">
+        <div className="container mx-auto text-black">
             <h1 className="text-3xl font-bold text-center mt-8 text-black">
                 Instrumentos
             </h1>
-            {error && <p className="text-red-700 text-center">{error}</p>}
+            {error && <p className="text-red-700 text-center text-black">{error}</p>}
             {Object.entries(groupedInstruments).map(([nombre, instrumentosGrupo]) => (
                 <div
                     key={nombre}
@@ -220,11 +351,11 @@ const VerInstrumentos = () => {
                 >
                     <button
                         onClick={() => toggleInstrumentGroup(nombre)}
-                        className={`w-full text-left p-4 flex items-center justify-between ${
+                         className={`w-full text-left p-4 flex items-center justify-between ${
                             openInstrumentGroup === nombre
                                 ? "bg-gray-200"
                                 : "bg-gray-100 hover:bg-gray-200"
-                        }`}
+                        } text-black`}
                     >
                         <div className="flex items-center">
               <span className="text-black font-bold">
@@ -276,20 +407,39 @@ const VerInstrumentos = () => {
                                 </thead>
                                 <tbody>
                                 {instrumentosGrupo.map((instrumento) => (
-                                    <tr key={instrumento._id} className="border-b border-gray-200">
+                                    <tr key={instrumento._id} className="border-b border-gray-200 text-black">
                                         <td className="px-4 py-2 text-black">{instrumento.marca}</td>
                                         <td className="px-4 py-2 text-black">{instrumento.estado}</td>
-                                        <td className="px-4 py-2 text-black">{instrumento.asignadoA || "-"}</td>
+                                          <td className="px-4 py-2 text-black">
+                                              {instrumento.asignadoA ? userMap[instrumento.asignadoA] || "Usuario no encontrado" : "-"}
+                                          </td>
                                         <td className="px-4 py-2">
+                                          {instrumento.asignadoA ? (
+                                              <button
+                                                  onClick={() => handleDirectUnassign(instrumento)}
+                                                  className="bg-yellow-500 text-white py-1 px-3 rounded mr-2"
+                                              >
+                                                  Desasignar
+                                              </button>
+                                          ) : (
+                                              <button
+                                                onClick={() => handleOpenAssignModal(instrumento)}
+                                                className="bg-green-500 text-white py-1 px-3 rounded mr-2"
+                                                >
+                                                Asignar
+                                              </button>
+                                          )}
+
+
                                             <button
                                                 onClick={() => handleEdit(instrumento)}
-                                                className="bg-blue-500 text-white py-1 px-3 rounded"
+                                                className="bg-blue-500 text-white py-1 px-3 rounded mr-2"
                                             >
                                                 Editar
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(instrumento._id)}
-                                                className="bg-red-500 text-white py-1 px-3 rounded ml-2"
+                                                className="bg-red-500 text-white py-1 px-3 rounded"
                                             >
                                                 Eliminar
                                             </button>
@@ -303,6 +453,7 @@ const VerInstrumentos = () => {
                 </div>
             ))}
             {isModalOpen && renderEditForm()}
+            {isAssignModalOpen && renderAssignModal()}
         </div>
     );
 };
