@@ -78,7 +78,7 @@ async function getInstrumento(id) {
            if(user){
              instrumento.asignadoA = user.nombre;
            }else{
-            instrumento.asignadoA = "Usuario no encontrado";
+            instrumento.asignadoA = null;
            }
           
         }
@@ -106,7 +106,7 @@ async function updateInstrumento(id, instrumento) {
                 nombre,
                 marca,
                 estado,
-                asignadoA: asignadoA || "libre"
+                asignadoA: asignadoA || null
             },
             { new: true }
         ).exec();
@@ -153,7 +153,7 @@ async function assignInstrumentToUser(instrumentId, userId) {
         if (!user) return [null, "No se encontró el usuario con el ID proporcionado"];
 
         // Verificar si el instrumento ya está asignado
-        if (instrument.asignadoA !== "libre") return [null, "El instrumento ya está asignado"];
+        if (instrument.asignadoA !== null) return [null, "El instrumento ya está asignado"];
         
         instrument.asignadoA = userId;
         await instrument.save();
@@ -183,9 +183,9 @@ async function unassignInstrumentToUser(instrumentId, userId) {
         if (!instrument) return [null, "No se encontró el instrumento con el ID proporcionado"];
         if (!user) return [null, "No se encontró el usuario con el ID proporcionado"];
 
-        if(instrument.asignadoA === "libre") return [null, "El instrumento ya está libre"];
+        if(instrument.asignadoA === null) return [null, "El instrumento ya está libre"];
 
-        instrument.asignadoA = "libre";
+        instrument.asignadoA = null;
         await instrument.save();
 
         user.instrumento = user.instrumento.filter(id => id.toString() !== instrumentId);
