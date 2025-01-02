@@ -3,7 +3,6 @@
 import User from "../models/user.model.js";
 import Role from "../models/role.model.js";
 import { handleError } from "../utils/errorHandler.js";
-import { get } from "mongoose";
 
 /**
  * Obtiene todos los usuarios de la base de datos

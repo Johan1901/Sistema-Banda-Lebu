@@ -159,7 +159,7 @@ async function unassignInstrumentFromUser(req, res) {
     const { error: paramsError } = instrumentoIdSchema.validate(params);
     if (paramsError) return respondError(req, res, 400, paramsError.message);
 
-      const { userId } = body;
+    const { asignadoA: userId } = body;
     if (!userId) return respondError(req, res, 400, "El id del usuario es obligatorio");
 
     const [unassignedInstrument, error] =
