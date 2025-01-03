@@ -5,12 +5,11 @@ import { handleError } from "../utils/errorHandler.js";
 
 async function createImplemento (implemento) {
     try {
-        const { nombre, instrumento, stock } = implemento;
+        const { nombre, estado } = implemento;
 
         const newImplemento = new Implemento({
             nombre,
-            instrumento,
-            stock,
+            estado
         });
         await newImplemento.save();
 
@@ -47,12 +46,11 @@ async function getImplemento (id) {
 
 async function updateImplemento (id, implemento) {
     try {
-        const { nombre, instrumento, stock } = implemento;
+        const { nombre, estado} = implemento;
 
         const updatedImplemento = await Implemento.findByIdAndUpdate(id, {
             nombre,
-            instrumento,
-            stock,
+            estado
         }, { new: true });
         if (!updatedImplemento) return [null, "No se encontró el implemento"];
 

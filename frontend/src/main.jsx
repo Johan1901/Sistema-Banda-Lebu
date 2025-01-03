@@ -13,6 +13,8 @@ import VerActividades from './components/VerActividades.jsx';
 import CrearIntegrante from './components/CrearIntegrante.jsx';
 import VerIntegrantes from './components/VerIntegrantes.jsx';
 import ActivityDetails from './components/ActivityDetails.jsx';
+import CrearImplemento from './components/CrearImplemento.jsx';
+import VerImplementos from './components/VerImplementos.jsx';
 
 const router = createBrowserRouter([
   {
@@ -54,6 +56,16 @@ const router = createBrowserRouter([
       {
         path: '/actividades/:id',
         element: <ActivityDetails />,
+      },
+      //nueva ruta para CrearImplemento
+      {
+        path: '/inventario/crear/implemento',
+        element: <CrearImplemento />,
+      },
+      //nueva ruta para VerImplementos
+      {
+        path: '/inventario/ver/implementos',
+        element: <VerImplementos />,
       },
 
     ],

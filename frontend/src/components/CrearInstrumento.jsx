@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { createInstrumento } from "../services/instrumento.service.js";
 import { showSuccessAlert, showErrorAlert } from "./Alertmsg.jsx";
+import { useNavigate } from "react-router-dom";
 
 const CrearInstrumento = () => {
+    const navigate = useNavigate();
+
     const [instrumento, setInstrumento] = useState({
         nombre: "",
         marca: "",
@@ -52,6 +55,12 @@ const CrearInstrumento = () => {
     return (
         <div className="container mx-auto">
             <h1 className="text-3xl font-bold text-center mt-8">Crear Instrumento</h1>
+            <button
+                        onClick={() => navigate("/inventario/ver/instrumentos")}
+                        className="bg-gray-400 hover:bg-gray-500 text-white font-bold py-1 px-4 rounded"
+                    >
+                        Volver
+                    </button>
             <form onSubmit={handleSubmit} className="space-y-4 mt-4">
                 <div>
                     <label htmlFor="nombre" className="block text-sm font-medium text-gray-600">

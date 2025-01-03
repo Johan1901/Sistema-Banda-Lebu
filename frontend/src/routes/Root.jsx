@@ -123,12 +123,6 @@ function PageRoot() {
                         <li>
                             <a href="/inventario/ver/implementos" className="block py-2.5 px-4 rounded hover:bg-blue-600">Ver implementos</a>
                         </li>
-                        <li>
-                            <a href="/inventario/crear/instrumento" className="block py-2.5 px-4 rounded hover:bg-blue-600">Crear instrumento</a>
-                        </li>
-                        <li>
-                            <a href="/inventario/crear/implemento" className="block py-2.5 px-4 rounded hover:bg-blue-600">Crear implemento</a>
-                        </li>
                         </ul>
                     )}
                     </li>
@@ -138,7 +132,7 @@ function PageRoot() {
         </div>
 
         {/* Main content */}
-        <div className="ml-60 flex-grow p-4">
+        <div className="ml-0 flex-grow p-4">
           <Outlet />
         </div>
       </div>

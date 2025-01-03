@@ -1,15 +1,17 @@
 "use strict";
 
 import mongoose from "mongoose";
+import ESTADO from "../constants/estado.constants.js";
 
 const implementoSchema = new mongoose.Schema({
     nombre: {
         type: String,
         required: true,
     },
-    instrumento: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Instrumento",
+    estado: {
+        type: String,
+        enum: ESTADO,
+        required: true,
     },
 });
 
