@@ -66,7 +66,7 @@ export const updateIntegrante = async (id, integrante) => {
         if (!token) {
         throw new Error("No hay un token de autenticación");
         }
-        const response = await axios.put(`${API_URL}/${id}`, integrante, {
+        const response = await axios.patch(`${API_URL}/${id}`, integrante, {
         headers: {
             Authorization: `Bearer ${token}`
         }

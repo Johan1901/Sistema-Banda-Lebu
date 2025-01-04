@@ -87,33 +87,17 @@ async function updateUser(id, user) {
     const userFound = await User.findById(id);
     if (!userFound) return [null, "El usuario no existe"];
 
-    const { username, email, rut, fecha_nacimiento, telefono, password, newPassword, instrumento, roles } = user;
-
-    const matchPassword = await User.comparePassword(
-      password,
-      userFound.password,
-    );
-
-    if (!matchPassword) {
-      return [null, "La contraseña no coincide"];
-    }
-
-    const rolesFound = await Role.find({ name: { $in: roles } });
-    if (rolesFound.length === 0) return [null, "El rol no existe"];
-
-    const myRole = rolesFound.map((role) => role._id);
+    const { username, rut, fecha_nacimiento, telefono, email, instrumento } = user;
 
     const userUpdated = await User.findByIdAndUpdate(
       id,
       {
         username,
-        email,
         rut,
         fecha_nacimiento,
         telefono,
-        password: await User.encryptPassword(newPassword || password),
+        email,
         instrumento,
-        roles: myRole,
       },
       { new: true },
     );
