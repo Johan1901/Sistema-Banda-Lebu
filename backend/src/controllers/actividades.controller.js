@@ -68,7 +68,6 @@ async function createActividades(req, res) {
         const [newActividades, errorActividades] = await ActividadesService.createActividades(body);
         if (errorActividades) return respondError(req, res, 404, errorActividades);
 
-        //busca los participantes que tengan rol de user y les envia un correo
          const users = await User.find({
             roles: {
               $in: (await Role.find({ name: "user" })).map(role => role._id)
@@ -107,7 +106,7 @@ async function updateActividades(req, res) {
         const { error: idError } = actividadesIdSchema.validate({ id });
         if (idError) return respondError(req, res, 400, idError.message);
 
-        const { error: bodyError } = actividadesBodySchema.validate(body);
+        const { error: bodyError } = actividadesBodySchema.validate(body, {context:{method:req.method}});
         if (bodyError) return respondError(req, res, 400, bodyError.message);
 
         const [updatedActividades, errorActividades] = await ActividadesService.updateActividades(id, body);
@@ -118,7 +117,6 @@ async function updateActividades(req, res) {
         handleError(error, "actividades.controller -> updateActividades");
         respondError(req, res, 400, error.message);
     }
-
 }
 
 
@@ -160,18 +158,15 @@ async function confirmarParticipacion(req, res) {
         const { error: idError } = actividadesIdSchema.validate({ id });
         if (idError) return respondError(req, res, 400, idError.message);
 
-         // Agregar participanteId al body
         const bodyWithId = { ...body, participanteId };
         const { error: bodyError } = confirmarParticipacionSchema.validate(bodyWithId);
         if (bodyError) return respondError(req, res, 400, bodyError.message);
 
-       // Buscar el usuario por ID
         const user = await User.findById(participanteId);
         if (!user) {
           return respondError(req, res, 404, "No se encontró el usuario que corresponde al id de participante");
         }
 
-        // verifica que el correo del usuario en la base de datos corresponda al correo del token
        if (user.email !== req.email) {
           return respondError(req, res, 403, "No tienes permiso para realizar esta acción");
         }
@@ -202,10 +197,8 @@ async function confirmarParticipacionesAdmin(req, res) {
         const { error: idError } = actividadesIdSchema.validate({ id });
         if (idError) return respondError(req, res, 400, idError.message);
 
-        // Obtener el ID del participante de la URL
        const { participanteId } = req.params;
 
-       // Agregar participanteId al body
        const bodyWithId = { ...body, participanteId };
        const { error: bodyError } = confirmarParticipacionSchema.validate(bodyWithId);
        if (bodyError) return respondError(req, res, 400, bodyError.message);

@@ -75,7 +75,7 @@ async function getActividad(id) {
 
 async function updateActividades(id, actividades) {
     try {
-        const { titulo, descripcion, fecha, hora, lugar, participantes } = actividades;
+        const { titulo, descripcion, fecha, hora, lugar } = actividades;
         const updatedActividades = await Actividades.findByIdAndUpdate(
             id,
             {
@@ -83,8 +83,7 @@ async function updateActividades(id, actividades) {
                 descripcion,
                 fecha,
                 hora,
-                lugar,
-                participantes
+                lugar
             },
             { new: true }
         ).exec();

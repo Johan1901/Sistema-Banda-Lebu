@@ -14,7 +14,7 @@ router.use(authenticationMiddleware);
 router.get("/", actividadesController.getActividades);
 router.post("/", isAdmin, actividadesController.createActividades);
 router.get("/:id", actividadesController.getActividad);
-router.put("/:id", isAdmin, actividadesController.updateActividades);
+router.patch("/:id", isAdmin, actividadesController.updateActividades);
 router.delete("/:id", isAdmin, actividadesController.deleteActividades);
 //ruta para confirmar la participacion de un usuario en una actividad
 router.patch("/:id/confirmarParticipacion/:participanteId", isUser, actividadesController.confirmarParticipacion);

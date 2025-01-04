@@ -2,29 +2,64 @@
 import Joi from "joi";
 
 const actividadesBodySchema = Joi.object({
-    titulo: Joi.string().required().messages({
+  titulo: Joi.string()
+    .when("$method", {
+      is: Joi.valid("PATCH"),
+      then: Joi.optional().messages({
+          "string.base": "El título debe ser de tipo string."
+      }),
+      otherwise: Joi.string().required().messages({
         "string.empty": "El título no puede estar vacío.",
         "any.required": "El título es obligatorio.",
         "string.base": "El título debe ser de tipo string.",
+      }),
     }),
-    descripcion: Joi.string().required().messages({
+  descripcion: Joi.string()
+    .when("$method", {
+      is: Joi.valid("PATCH"),
+      then: Joi.optional().messages({
+          "string.base": "La descripción debe ser de tipo string."
+      }),
+      otherwise: Joi.string().required().messages({
         "string.empty": "La descripción no puede estar vacía.",
         "any.required": "La descripción es obligatoria.",
         "string.base": "La descripción debe ser de tipo string.",
+      }),
     }),
-    fecha: Joi.date().required().messages({
+  fecha: Joi.date()
+    .when("$method", {
+      is: Joi.valid("PATCH"),
+      then: Joi.optional().messages({
+          "date.base": "La fecha debe ser de tipo date."
+      }),
+      otherwise: Joi.date().required().messages({
         "date.base": "La fecha debe ser de tipo date.",
         "any.required": "La fecha es obligatoria.",
+      }),
     }),
-    hora: Joi.string().required().messages({
+  hora: Joi.string()
+    .when("$method", {
+      is: Joi.valid("PATCH"),
+      then: Joi.optional().messages({
+          "string.base": "La hora debe ser de tipo string."
+      }),
+      otherwise: Joi.string().required().messages({
         "string.empty": "La hora no puede estar vacía.",
         "any.required": "La hora es obligatoria.",
         "string.base": "La hora debe ser de tipo string.",
+      }),
     }),
-    lugar: Joi.string().required().messages({
+  lugar: Joi.string()
+    .when("$method", {
+      is: Joi.valid("PATCH"),
+      then: Joi.optional().messages({
+          "string.base": "El lugar debe ser de tipo string."
+      }),
+      otherwise: Joi.string().required().messages({
         "string.empty": "El lugar no puede estar vacío.",
         "any.required": "El lugar es obligatorio.",
         "string.base": "El lugar debe ser de tipo string.",
+      }),
     }),
     participantes: Joi.array().items(Joi.object({
         integrante: Joi.string()
@@ -44,6 +79,7 @@ const actividadesBodySchema = Joi.object({
         "any.only": "El estado proporcionado no es válido.",
     }),
 }).unknown(true);
+
 
 const actividadesIdSchema = Joi.object({
     id: Joi.string()

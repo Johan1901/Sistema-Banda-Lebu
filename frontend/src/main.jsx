@@ -16,6 +16,7 @@ import ActivityDetails from './components/ActivityDetails.jsx';
 import CrearImplemento from './components/CrearImplemento.jsx';
 import VerImplementos from './components/VerImplementos.jsx';
 
+
 const router = createBrowserRouter([
   {
     path: '/',
@@ -67,7 +68,6 @@ const router = createBrowserRouter([
         path: '/inventario/ver/implementos',
         element: <VerImplementos />,
       },
-
     ],
   },
   {

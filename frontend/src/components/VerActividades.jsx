@@ -39,14 +39,17 @@ const VerActividades = () => {
 
     const fetchActividades = async () => {
         try {
+             console.log("Fetching actividades...");
             const response = await getActividades();
              if (response.data && (Array.isArray(response.data.data) || Array.isArray(response.data))) {
-                const data = response.data.data || response.data;
+                 const data = response.data.data || response.data;
+                 console.log("Actividades fetched:", data);
                  setActividades(data);
              } else {
                   setError("Formato inesperado en la respuesta del servidor.");
             }
         } catch (error) {
+            console.error("Error fetching actividades:", error);
             setError("No se pudo cargar la lista de actividades.");
         }
     };
@@ -58,40 +61,70 @@ const VerActividades = () => {
             return;
         }
         try {
+             console.log("Deleting actividad with ID:", id);
             await deleteActividad(id);
             setActividades((prevActividades) =>
                 prevActividades.filter((actividad) => actividad._id !== id)
             );
             showSuccessAlert("Actividad eliminada correctamente");
         } catch (error) {
+             console.error("Error deleting actividad:", error);
             showErrorAlert("Error al eliminar actividad.");
         }
     };
 
     const handleEdit = (actividad) => {
+        console.log("Editing actividad:", actividad);
         setSelectedActividad(actividad);
         setModalVisible(true);
     };
 
     const handleModalClose = () => {
+        console.log("Closing modal");
         setModalVisible(false);
         setSelectedActividad(null);
     };
 
     const handleUpdate = async (event) => {
         event.preventDefault();
+        console.log("Updating actividad, selectedActividad:", selectedActividad);
         try {
-            await updateActividad(selectedActividad._id, selectedActividad);
-            fetchActividades();
-            showSuccessAlert("Actividad actualizada correctamente");
-            handleModalClose();
+            // 1. Create a new object with only the properties we want to update.
+             const updateData = {
+                 titulo: selectedActividad.titulo,
+                 descripcion: selectedActividad.descripcion,
+                 fecha: selectedActividad.fecha,
+                 hora: selectedActividad.hora,
+                 lugar: selectedActividad.lugar,
+             };
+    
+            // 2. Send the request with the new object.
+            const response = await updateActividad(selectedActividad._id, updateData);
+    
+            if (response.data && response.data.data) {
+                const updatedActividad = response.data.data;
+                console.log("Actividad updated:", updatedActividad);
+                setActividades((prevActividades) =>
+                    prevActividades.map((actividad) =>
+                        actividad._id === updatedActividad._id ? updatedActividad : actividad
+                    )
+                );
+                fetchActividades();
+                showSuccessAlert("Actividad actualizada correctamente");
+                handleModalClose();
+            } else {
+                console.error("Error updating actividad:", response);
+                showErrorAlert("Error al actualizar la actividad.");
+            }
         } catch (error) {
+            console.error("Error updating actividad:", error);
             showErrorAlert("Error al actualizar la actividad.");
         }
     };
 
     const handleChange = (event) => {
         const { name, value } = event.target;
+        console.log(`handleChange: name=${name}, value=${value}`);
         setSelectedActividad((prev) => ({
             ...prev,
             [name]: name === "fecha" ? value : value,
@@ -203,7 +236,7 @@ const VerActividades = () => {
                                     type="text"
                                     id="titulo"
                                     name="titulo"
-                                    value={selectedActividad.titulo}
+                                    value={selectedActividad?.titulo || ""}
                                     onChange={handleChange}
                                     className="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-800"
                                     required
@@ -219,7 +252,7 @@ const VerActividades = () => {
                                 <textarea
                                     id="descripcion"
                                     name="descripcion"
-                                    value={selectedActividad.descripcion}
+                                    value={selectedActividad?.descripcion || ""}
                                     onChange={handleChange}
                                     className="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-800"
                                     required
@@ -236,7 +269,7 @@ const VerActividades = () => {
                                     type="date"
                                     id="fecha"
                                     name="fecha"
-                                    value={formatDate(selectedActividad.fecha)}
+                                    value={formatDate(selectedActividad?.fecha)}
                                     onChange={handleChange}
                                     className="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-800"
                                     required
@@ -253,7 +286,7 @@ const VerActividades = () => {
                                     type="time"
                                     id="hora"
                                     name="hora"
-                                    value={selectedActividad.hora}
+                                    value={selectedActividad?.hora || ""}
                                     onChange={handleChange}
                                     className="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-800"
                                     required
@@ -270,7 +303,7 @@ const VerActividades = () => {
                                     type="text"
                                     id="lugar"
                                     name="lugar"
-                                    value={selectedActividad.lugar}
+                                    value={selectedActividad?.lugar || ""}
                                     onChange={handleChange}
                                     className="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-800"
                                     required
